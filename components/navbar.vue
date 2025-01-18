@@ -4,16 +4,21 @@
 
 <template>
 <nav class="w-full">
-  <div class="flex justify-between items-center p-4 max-w-7xl">
-    <div>
-      <nuxt-link to="/" class="text-neutral-900 text-2xl font-semibold">rabatino</nuxt-link>
+  <div class="flex justify-between items-center p-4 max-w-7xl mx-auto">
+    <div class="flex justify-center items-center gap-2">
+      <logo/>
+      <nuxt-link to="/" class="text-neutral-900 text-2xl font-semibold leading-none">rabatino</nuxt-link>
     </div>
     <div class="flex items-center justify-center gap-6">
-      <nuxt-link to="/" class="text-neutral-900 text-base font-medium" >Home</nuxt-link>
+      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Home</nuxt-link>
+      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Education</nuxt-link>
+      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Tourism</nuxt-link>
+      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Business</nuxt-link>
+      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Career</nuxt-link>
     </div>
     <div class="flex items-center justify-center gap-2">
-      <nuxt-link to="/" class="text-neutral-900 py-4 px-6 text-base font-medium" >Login</nuxt-link>
-      <nuxt-link to="/" class="bg-neutral-900 text-white py-4 px-6 text-base font-medium" >Create Account</nuxt-link>
+      <nuxt-link to="/" class="text-neutral-900 p-3 px-6 text-base font-medium" >Login</nuxt-link>
+      <nuxt-link to="/" class="bg-neutral-900 text-white p-3 px-6 text-base font-medium rounded-full" >Create Account</nuxt-link>
     </div>
   </div>
 </nav>
