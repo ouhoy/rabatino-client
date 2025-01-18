@@ -3,6 +3,7 @@
 </script>
 
 <template>
+  <navbar/>
   <slot />
 </template>
 
