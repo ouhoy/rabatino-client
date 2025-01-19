@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Card from "./card.vue";
 import {ref, onMounted, onUnmounted} from 'vue';
+import {ChevronRightIcon, ChevronLeftIcon} from '@heroicons/vue/16/solid';
 
 interface postCard {
   title: string,
@@ -16,6 +17,24 @@ defineProps<{
 const scrollContainer = ref<HTMLElement | null>(null);
 const showLeftGradient = ref(false);
 const showRightGradient = ref(true);
+
+const scrollAmount = 800; // Approximately 3 cards width
+
+const scrollLeft = () => {
+  if (!scrollContainer.value) return;
+  scrollContainer.value.scrollBy({
+    left: -scrollAmount,
+    behavior: 'smooth'
+  });
+};
+
+const scrollRight = () => {
+  if (!scrollContainer.value) return;
+  scrollContainer.value.scrollBy({
+    left: scrollAmount,
+    behavior: 'smooth'
+  });
+};
 
 const checkScroll = () => {
   if (!scrollContainer.value) return;
@@ -47,22 +66,51 @@ onUnmounted(() => {
         <h3 class="text-neutral-900 text-2xl font-semibold leading-none first-letter:uppercase">{{ title }}</h3>
         <p class="text-neutral-700 text-base font-normal leading-none first-letter:uppercase">{{ description }}</p>
       </div>
-      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">More {{ title.toLowerCase() }} posts</nuxt-link>
+      <nuxt-link to="/" class="text-neutral-900 text-base font-medium flex items-center justify-center">More
+        {{ title.toLowerCase() }} posts
+        <ChevronRightIcon class="size-5"/>
+      </nuxt-link>
 
     </div>
 
-    <div v-if="showLeftGradient"
-         class="absolute left-0 top-0 w-16 h-full bg-gradient-to-r from-white to-transparent z-[100]"></div>
+    <!-- Left scroll button and gradient -->
+    <div class="absolute left-0 top-0 h-full z-[100] flex items-center">
+      <div v-show="showLeftGradient"
+           class="w-16 h-full bg-gradient-to-r from-white to-transparent transition-opacity duration-300 ease-in-out"
+           :class="showLeftGradient ? 'opacity-100' : 'opacity-0'">
+      </div>
+      <button v-show="showLeftGradient"
+              @click="scrollLeft"
+              class="absolute left-0 p-2 rounded-full bg-white shadow-sm border border-1 border-neutral-200 hover:bg-gray-50 transition-all">
+        <ChevronLeftIcon class="size-5 text-neutral-900"/>
+      </button>
+    </div>
+
     <div ref="scrollContainer"
-         class="w-full pl-24 flex items-center justify-center gap-8 overflow-x-scroll no-scrollbar ">
+         class="w-full flex items-center justify-start gap-8 overflow-x-scroll no-scrollbar ">
       <card v-for="post in posts" :title="post.title" :imgUrl="post.imgUrl"/>
     </div>
-    <div v-if="showRightGradient"
-         class="absolute right-0 top-0 w-16 h-full bg-gradient-to-l from-white to-transparent z-[100]"></div>
+
+    <!-- Right scroll button and gradient -->
+    <div class="absolute right-0 top-0 h-full z-[100] flex items-center">
+      <div v-show="showRightGradient"
+           class="w-16 h-full bg-gradient-to-l from-white to-transparent transition-opacity duration-300 ease-in-out"
+           :class="showRightGradient ? 'opacity-100' : 'opacity-0'">
+      </div>
+      <button v-show="showRightGradient"
+              @click="scrollRight"
+              class="absolute right-0 p-2 rounded-full bg-white shadow-sm border border-1 border-neutral-200 hover:bg-gray-50 transition-all">
+        <ChevronRightIcon class="size-5 text-neutral-900"/>
+      </button>
+    </div>
 
   </div>
 </template>
 
+
+<style scoped>
+
+</style>
 <style scoped>
 
 </style>

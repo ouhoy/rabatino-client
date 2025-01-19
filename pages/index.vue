@@ -11,6 +11,26 @@ const fakePosts = [
     imgUrl: "https://images.unsplash.com/photo-1612838320302-3b3b3b3b3b3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMjIwNzV8MHwxfGFsbHwxf"
   },
   {
+    title: "The Ultimate Guide to Rabat",
+    imgUrl: "https://images.unsplash.com/photo-1612838320302-3b3b3b3b3b3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMjIwNzV8MHwxfGFsbHwxf"
+  },
+  {
+    title: "The Ultimate Guide to Rabat",
+    imgUrl: "https://images.unsplash.com/photo-1612838320302-3b3b3b3b3b3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMjIwNzV8MHwxfGFsbHwxf"
+  },
+  {
+    title: "The Ultimate Guide to Rabat",
+    imgUrl: "https://images.unsplash.com/photo-1612838320302-3b3b3b3b3b3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMjIwNzV8MHwxfGFsbHwxf"
+  },
+  {
+    title: "The Ultimate Guide to Rabat",
+    imgUrl: "https://images.unsplash.com/photo-1612838320302-3b3b3b3b3b3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMjIwNzV8MHwxfGFsbHwxf"
+  },
+  {
+    title: "The Ultimate Guide to Rabat",
+    imgUrl: "https://images.unsplash.com/photo-1612838320302-3b3b3b3b3b3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMjIwNzV8MHwxfGFsbHwxf"
+  },
+  {
     title: "Exploring Rabat's Medina",
     imgUrl: "https://images.unsplash.com/photo-1612838320302-3b3b3b3b3b3b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwyMjIwNzV8MHwxfGFsbHwxf"
   },
