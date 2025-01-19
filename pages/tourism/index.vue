@@ -1,10 +1,7 @@
 <script setup lang="ts">
 
-import {MagnifyingGlassIcon, ChevronRightIcon} from '@heroicons/vue/16/solid';
-import SliderSection from "../components/SliderSection.vue";
-
-const searchInputValue = ref('');
-
+import PageHeader from "../../components/pageHeader.vue";
+import Card from "../../components/card.vue";
 const fakePosts = [
   {
     title: "The Ultimate Guide to Rabat",
@@ -53,50 +50,64 @@ const fakePosts = [
   }
 ];
 
+
+const categories = [
+  {id: 0, name: 'All'},
+  {id: 1, name: 'Hotels'},
+  {id: 2, name: 'Restaurants'},
+  {id: 3, name: 'Theaters'},
+  {id: 4, name: 'ATMs'},
+  {id: 5, name: 'Tourist Attractions'},
+];
+
+const selectedCategory = ref<number | null>(0);
+
+const filterListings = (categoryId: number) => {
+  console.log(categoryId);
+}
+const handleCategoryClick = (categoryId: number) => {
+
+
+  if (selectedCategory.value === categoryId) {
+    return;
+  }
+  selectedCategory.value = categoryId;
+  filterListings(categoryId);
+
+
+}
+
+
 </script>
 
 <template>
-  <main class="-w-full">
+  <main class="w-full">
+    <div class="py-12 flex flex-col items-center justify-center gap-6">
 
-    <!-- HERO_SECTION -->
-    <header class="w-full flex flex-col items-center justify-center gap-4 py-36">
-      <div class="flex text-center flex-col items-center justify-center gap-4 max-w-xl mx-auto">
-        <h1 class="text-7xl text-neutral-900 leading-[80px] font-medium">Discover Rabat<br/>the City of Light</h1>
-        <p class="text-lg text-neutral-700">Explore the perfect blend of timeless heritage and cutting-edge innovation
-          in Morocco’s capital.</p>
-      </div>
-      <div
-          class="w-full flex items-center justify-between p-2 h-14 border border-1 rounded-full border-neutral-300 bg-neutral-50/50 mx-auto  max-w-2xl">
-
-        <input
+      <page-header title="Tourism"
+                   description="All tourism-related operations in the city, including hotels, restaurants,
+                  tourist attractions, ATMs, theatres, and so on."></page-header>
 
 
-            v-model="searchInputValue"
-
-            type="text"
-            class="bg-neutral-50 p-2 w-full max-w-[95%] mx-auto block outline-none border-0 text-neutral-900 placeholder:text-neutral-500 placeholder:text-sm"
-            placeholder="What are you looking for?">
-
-        <button
-            class="p-3 bg-blue-600 flex items-center justify-center rounded-full ">
-          <MagnifyingGlassIcon class="w-4 h-4 text-white"/>
+      <section
+          class="w-full  overflow-x-auto flex gap-2 items-center justify-center">
+        <button @click="handleCategoryClick(category.id)"
+                v-for="category in categories"
+                :key="category.id"
+                :class="{ 'bg-neutral-950 border-neutral-950 !bg-opacity-100 text-white': selectedCategory === category.id }"
+                class="select-none py-2 px-4 text-sm font-medium bg-neutral-50 bg-opacity-20 text-neutral-950 rounded-full border border-neutral-300">
+          {{ category.name }}
         </button>
-      </div>
-    </header>
+      </section>
 
-    <section class="w-full flex flex-col items-start justify-start gap-12">
+    </div>
 
-      <SliderSection title="Education" description="Anything related to education and studying" :posts="fakePosts"/>
-      <SliderSection title="Tourism" description="Anything related to education and studying" :posts="fakePosts"/>
-      <SliderSection title="Career" description="Anything related to education and studying" :posts="fakePosts"/>
-      <SliderSection title="Business" description="Anything related to education and studying" :posts="fakePosts"/>
-    </section>
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  3xl:grid-cols-5 gap-8 md:gap-4">
+      <card v-for="post in fakePosts" :title="post.title" :imgUrl="post.imgUrl"/>
+    </div>
   </main>
 </template>
 
 <style scoped>
-h1 {
-  font-family: Alegreya;
-}
 
 </style>
