@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   googleFonts: {
     families: {
       Inter: [400, 500, 600, 700],
+      Alegreya: [400, 500, 600, 700],
     }
   }
 })

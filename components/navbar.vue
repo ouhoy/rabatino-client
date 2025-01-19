@@ -4,8 +4,8 @@
 
 <template>
 <nav class="w-full">
-  <div class="flex justify-between items-center p-4 max-w-7xl mx-auto">
-    <div class="flex justify-center items-center gap-2">
+  <div class="flex justify-between items-center py-4 max-w-7xl mx-auto">
+    <div class="flex justify-start items-center gap-2 w-[265.55px]">
       <logo/>
       <nuxt-link to="/" class="text-neutral-900 text-2xl font-semibold leading-none">rabatino</nuxt-link>
     </div>
