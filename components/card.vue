@@ -3,7 +3,6 @@
 
 defineProps<{
   title: string,
-  price: number,
   imgUrl: string,
 }>()
 
@@ -35,7 +34,7 @@ defineProps<{
     <!-- CARD DESCRIPTION -->
     <div class="w-full flex items-center justify-between gap-2 min-w-80">
       <h2 class="truncate  font-medium text-base text-neutral-900 first-letter:uppercase">{{ title }}</h2>
-      <p v-if="price" class="text-normal text-neutral-900 whitespace-nowrap"><span class="font-medium">{{ Math.floor(price) }}MAD</span> night</p>
+<!--      <p v-if="price" class="text-normal text-neutral-900 whitespace-nowrap"><span class="font-medium">{{ Math.floor(price) }}MAD</span> night</p>-->
     </div>
 
   </div>

@@ -5,10 +5,11 @@
 <template>
 <nav class="w-full">
   <div class="flex justify-between items-center py-4 max-w-7xl mx-auto">
-    <div class="flex justify-start items-center gap-2 w-[265.55px]">
-      <logo/>
-      <nuxt-link to="/" class="text-neutral-900 text-2xl font-semibold leading-none">rabatino</nuxt-link>
-    </div>
+      <nuxt-link to="/" class="flex justify-start items-center gap-2 w-[265.55px]">
+        <logo/>
+        <h2 class="text-neutral-900 text-2xl font-semibold leading-none" >rabatino</h2>
+      </nuxt-link>
+
     <div class="flex items-center justify-center gap-6">
       <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Home</nuxt-link>
       <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Education</nuxt-link>
