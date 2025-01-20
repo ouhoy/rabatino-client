@@ -12,9 +12,9 @@
 
     <div class="flex items-center justify-center gap-6">
       <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Home</nuxt-link>
-      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Education</nuxt-link>
+      <nuxt-link to="/education" class="text-neutral-900 text-base font-medium">Education</nuxt-link>
       <nuxt-link to="/tourism" class="text-neutral-900 text-base font-medium">Tourism</nuxt-link>
-      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Business</nuxt-link>
+      <nuxt-link to="/business" class="text-neutral-900 text-base font-medium">Business</nuxt-link>
       <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Career</nuxt-link>
     </div>
     <div class="flex items-center justify-center gap-2">
