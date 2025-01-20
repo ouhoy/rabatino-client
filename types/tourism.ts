@@ -1,26 +1,11 @@
+import { type Post } from './shared'
+
 export enum TourismType {
   HOTEL = 'HOTEL',
   RESTAURANT = 'RESTAURANT',
   ATTRACTION = 'ATTRACTION',
   THEATER = 'THEATER',
   BANK = 'BANK'
-}
-
-export interface Post {
-  id: string;
-  title: string;
-  description: string;
-  images: string[];
-  createdAt: Date;
-  userId: string;
-  address: string;  // Add this field
-  latitude:number;  
-  longitude:number;
-  website?: string;
-  phone?: string;
-  email?: string;
-  featuredImage: string;
-
 }
 
 export interface Tourism extends Post {
