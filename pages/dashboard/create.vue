@@ -62,9 +62,15 @@ const getSubCategories = () => {
 const handleCategorySelect = (categoryId: string) => {
   selectedCategory.value = categoryId
   
-  // For career/jobs, skip type selection and go straight to form
+  // For career/jobs and business, skip type selection and go straight to form
   if (categoryId === 'jobs') {
     selectedType.value = 'job'
+    goToStep(3)
+    return
+  }
+
+  if (categoryId === 'business') {
+    selectedType.value = 'post'
     goToStep(3)
     return
   }
@@ -81,8 +87,8 @@ const handleTypeSelect = (typeId: string) => {
 
 // Modify back button behavior
 const handleBackClick = () => {
-  // If we're in jobs form, go directly back to step 1
-  if (selectedCategory.value === 'jobs') {
+  // If we're in jobs or business form, go directly back to step 1
+  if (selectedCategory.value === 'jobs' || selectedCategory.value === 'business') {
     goToStep(1)
     selectedCategory.value = ''
     selectedType.value = ''

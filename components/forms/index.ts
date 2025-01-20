@@ -28,4 +28,7 @@ export default {
   'create-jobs-job-form': defineAsyncComponent(() => 
     import('./jobs/CreateJobForm.vue')
   ),
+  'create-business-post-form': defineAsyncComponent(() => 
+    import('./business/CreateBusinessPostForm.vue')
+  ),
 }

@@ -187,5 +187,12 @@ const coursesList = computed({
         />
       </div>
     </div>
+
+    <!-- Submit Button -->
+    <div class="mt-6 flex items-center justify-end gap-x-6">
+      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        Create Coaching Center Listing
+      </button>
+    </div>
   </form>
 </template>
