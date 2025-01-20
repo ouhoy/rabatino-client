@@ -54,8 +54,6 @@ const getSubCategories = () => {
       return tourismTypes
     case 'education':
       return educationTypes
-    case 'jobs':
-      return jobTypes.types
     default:
       return []
   }
@@ -63,15 +61,35 @@ const getSubCategories = () => {
 
 const handleCategorySelect = (categoryId: string) => {
   selectedCategory.value = categoryId
+  
+  // For career/jobs, skip type selection and go straight to form
+  if (categoryId === 'jobs') {
+    selectedType.value = 'job'
+    goToStep(3)
+    return
+  }
+  
   selectedType.value = ''
   selectedSubType.value = ''
   goToStep(2)
 }
 
-// Update handleTypeSelect to format the component name
 const handleTypeSelect = (typeId: string) => {
   selectedType.value = typeId
   goToStep(3)
+}
+
+// Modify back button behavior
+const handleBackClick = () => {
+  // If we're in jobs form, go directly back to step 1
+  if (selectedCategory.value === 'jobs') {
+    goToStep(1)
+    selectedCategory.value = ''
+    selectedType.value = ''
+    return
+  }
+  goToStep(1)
+  selectedType.value = ''
 }
 </script>
 
@@ -111,7 +129,7 @@ const handleTypeSelect = (typeId: string) => {
         </h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-if="selectedCategory !== 'jobs'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <button
           v-for="type in getSubCategories()"
           :key="type.id"
@@ -127,7 +145,7 @@ const handleTypeSelect = (typeId: string) => {
     <div v-else-if="currentStep === 3" class="space-y-6">
       <div class="flex items-center gap-2 mb-8">
         <button 
-          @click="goToStep(2)"
+          @click="handleBackClick"
           class="text-blue-600 hover:text-blue-700"
         >
           ← Back

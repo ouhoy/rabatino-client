@@ -24,5 +24,8 @@ export default {
   ),
   'create-education-study_center-form': defineAsyncComponent(() => 
     import('./education/CreateStudyCenterForm.vue')
-  )
+  ),
+  'create-jobs-job-form': defineAsyncComponent(() => 
+    import('./jobs/CreateJobForm.vue')
+  ),
 }
