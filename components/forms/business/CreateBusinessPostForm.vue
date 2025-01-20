@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { z } from 'zod'
 import type { BusinessPost } from '~/types/business'
+
+// Zod schema based on BusinessPost interface
+const businessPostSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title is too long'),
+  body: z.string().min(10, 'Content must be at least 10 characters'),
+  featuredImg: z.string().url('Must be a valid URL'),
+  tags: z.array(z.string()).min(1, 'At least one tag is required'),
+})
 
 const formState = ref({
   title: '',
@@ -9,16 +18,58 @@ const formState = ref({
   tags: [] as string[]
 })
 
+// Form errors state
+const errors = ref({
+  title: '',
+  body: '',
+  featuredImg: '',
+  tags: ''
+})
+
 const tagsList = computed({
   get: () => formState.value.tags.join(', '),
   set: (value: string) => {
     formState.value.tags = value.split(',').map(tag => tag.trim()).filter(Boolean)
   }
 })
+
+const validateForm = () => {
+  // Reset errors
+  errors.value = {
+    title: '',
+    body: '',
+    featuredImg: '',
+    tags: ''
+  }
+
+  try {
+    businessPostSchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          // Set error message for the specific field
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    return false
+  }
+}
+
+const handleSubmit = () => {
+  if (validateForm()) {
+    console.log('Submitting Business Post:', formState.value)
+    // Proceed with form submission
+  } else {
+    console.log('Form validation failed', errors.value)
+  }
+}
 </script>
 
 <template>
-  <form class="space-y-12">
+  <form @submit.prevent="handleSubmit" class="space-y-12">
     <!-- Basic Information -->
     <div class="border-b border-gray-900/10 pb-12">
       <h2 class="text-2xl text-neutral-900 font-medium">Post Information</h2>
@@ -31,6 +82,7 @@ const tagsList = computed({
           label="Post Title"
           placeholder="Enter the title of your post"
           type="text"
+          :error="errors.title"
         />
 
         <FormTextarea
@@ -40,6 +92,7 @@ const tagsList = computed({
           placeholder="Write your post content..."
           :rows="6"
           help-text="Share your business news, updates, or insights"
+          :error="errors.body"
         />
 
         <!-- Tags -->
@@ -50,6 +103,7 @@ const tagsList = computed({
           placeholder="Enter tags separated by commas (e.g., business, startup, technology)"
           :rows="2"
           help-text="Add relevant tags to help others find your post"
+          :error="errors.tags"
         />
       </div>
     </div>
@@ -66,6 +120,7 @@ const tagsList = computed({
           label="Featured Image URL"
           placeholder="https://example.com/image.jpg"
           type="url"
+          :error="errors.featuredImg"
         />
       </div>
     </div>

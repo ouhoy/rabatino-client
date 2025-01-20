@@ -34,10 +34,14 @@ const coursesList = computed({
     formState.value.courses = value.split(',').map(item => item.trim()).filter(Boolean)
   }
 })
+
+const handleSubmit = () => {
+  console.log('Submitting Coaching Center:', formState.value)
+}
 </script>
 
 <template>
-  <form class="space-y-12">
+  <form @submit.prevent="handleSubmit" class="space-y-12">
     <!-- Basic Information -->
     <div class="border-b border-gray-900/10 pb-12">
       <h2 class="text-2xl text-neutral-900 font-medium">Basic Information</h2>

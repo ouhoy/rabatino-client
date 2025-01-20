@@ -113,7 +113,7 @@ const handleBackClick = () => {
           v-for="category in categories"
           :key="category.id"
           @click="handleCategorySelect(category.id)"
-          class="p-6 border rounded-xl text-left hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          class="p-6 border-2 rounded-xl text-left hover:border-blue-500 hover:bg-blue-50 transition-colors"
         >
           <h3 class="text-lg font-medium text-gray-900">{{ category.name }}</h3>
           <p class="mt-2 text-sm text-gray-500">{{ category.description }}</p>
@@ -140,7 +140,7 @@ const handleBackClick = () => {
           v-for="type in getSubCategories()"
           :key="type.id"
           @click="handleTypeSelect(type.id)"
-          class="p-6 border rounded-xl text-left hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          class="p-6 border-2 rounded-xl text-left hover:border-blue-500 hover:bg-blue-50 transition-colors"
         >
           <h3 class="text-lg font-medium text-gray-900">{{ type.name }}</h3>
         </button>
