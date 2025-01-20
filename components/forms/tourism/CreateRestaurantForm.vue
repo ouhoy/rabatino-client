@@ -1,16 +1,28 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { Restaurant } from '~/types/tourism'
+import { TourismType } from '~/types/tourism'
 
 const formState = ref({
+  // Post interface fields
   title: '',
   description: '',
-  images: [],
-  featuredImage: '',
+  createdAt: new Date(),
+  userId: '1',
   address: '',
+  latitude: 0,
+  longitude: 0,
   website: '',
   phone: '',
   email: '',
+  featuredImage: '',
+
+  // Tourism interface fields
+  isActive: true,
+  rating: 0,
+  type: TourismType.RESTAURANT,
+
+  // Restaurant specific fields
   cuisine: '',
   priceRanges: '',
   menus: '',
@@ -84,6 +96,23 @@ const formState = ref({
           placeholder="contact@restaurant.com"
           type="email"
         />
+
+        <!-- Add Location Coordinates -->
+        <FormInput
+          class="sm:col-span-3"
+          v-model="formState.latitude"
+          label="Latitude"
+          placeholder="e.g., 40.7128"
+          type="number"
+        />
+
+        <FormInput
+          class="sm:col-span-3"
+          v-model="formState.longitude"
+          label="Longitude"
+          placeholder="e.g., -74.0060"
+          type="number"
+        />
       </div>
     </div>
 
@@ -93,6 +122,30 @@ const formState = ref({
       <p class="text-base text-gray-600">Tell us more about your cuisine and services.</p>
 
       <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6 max-w-3xl">
+        <!-- Add Rating field at the top -->
+        <FormInput
+          class="sm:col-span-2"
+          v-model="formState.rating"
+          label="Rating"
+          placeholder="e.g., 4.5"
+          type="number"
+          min="0"
+          max="5"
+          step="0.1"
+        />
+
+        <!-- Active Status -->
+        <div class="sm:col-span-2">
+          <label class="inline-flex items-center">
+            <input 
+              type="checkbox" 
+              v-model="formState.isActive"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+            />
+            <span class="ml-2 text-sm text-gray-900">Active Listing</span>
+          </label>
+        </div>
+
         <FormInput
           class="sm:col-span-3"
           v-model="formState.cuisine"
