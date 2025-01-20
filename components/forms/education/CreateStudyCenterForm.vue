@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { StudyCenter } from '~/types/education'
+import { InstitutionType } from '~/types/education'
 
 const formState = ref({
+  // Post interface fields
   title: '',
   description: '',
-  featuredImage: '',
+  createdAt: new Date(),
+  userId: '1',
   address: '',
+  latitude: 0,
+  longitude: 0,
   website: '',
   phone: '',
   email: '',
+  featuredImage: '',
+
+  // Educational Institution fields
   isVerified: false,
   private: false,
+  type: InstitutionType.STUDY_CENTER,
+
+  // StudyCenter specific fields
   capacity: 0,
   amenities: [] as string[],
   hourlyRateRange: [0, 0],
@@ -21,27 +32,21 @@ const formState = ref({
 
 const commonAmenities = [
   'High-Speed WiFi',
-  'Individual Study Desks',
-  'Group Study Tables',
+  'Individual Desks',
   'Power Outlets',
   'Printing Services',
-  'Air Conditioning',
-  'Coffee & Snacks',
+  'Coffee Station',
   'Lockers',
-  'Soundproof Rooms',
-  'Multimedia Equipment',
-  'Whiteboards',
-  'Meeting Rooms'
+  'Air Conditioning',
+  'Soundproof Rooms'
 ]
 
-const commonRooms = [
-  'Silent Study Room',
-  'Group Study Room',
-  'Discussion Room',
-  'Private Cubicle',
-  'Conference Room',
-  'Multimedia Room'
-]
+const roomsList = computed({
+  get: () => formState.value.rooms.join(', '),
+  set: (value: string) => {
+    formState.value.rooms = value.split(',').map(item => item.trim()).filter(Boolean)
+  }
+})
 </script>
 
 <template>
@@ -85,7 +90,7 @@ const commonRooms = [
     <!-- Location and Contact -->
     <div class="border-b border-gray-900/10 pb-12">
       <h2 class="text-2xl text-neutral-900 font-medium">Location & Contact</h2>
-      <p class="text-base text-gray-600">Help students find and reach your center.</p>
+      <p class="text-base text-gray-600">Help visitors find and reach your study center.</p>
 
       <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6 max-w-3xl">
         <FormInput
@@ -96,6 +101,36 @@ const commonRooms = [
           type="text"
         />
 
+        <!-- Location Coordinates -->
+        <FormInput
+          class="sm:col-span-3"
+          v-model="formState.latitude"
+          label="Latitude"
+          placeholder="e.g., 40.7128"
+          type="number"
+        />
+
+        <FormInput
+          class="sm:col-span-3"
+          v-model="formState.longitude"
+          label="Longitude"
+          placeholder="e.g., -74.0060"
+          type="number"
+        />
+
+        <!-- Verification Status -->
+        <div class="col-span-full">
+          <label class="inline-flex items-center">
+            <input 
+              type="checkbox" 
+              v-model="formState.isVerified"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+            />
+            <span class="ml-2 text-sm text-gray-900">Verified Institution</span>
+          </label>
+        </div>
+
+        <!-- Contact Information -->
         <FormInput
           class="sm:col-span-3"
           v-model="formState.phone"
@@ -124,56 +159,60 @@ const commonRooms = [
 
     <!-- Study Center Details -->
     <div class="border-b border-gray-900/10 pb-12">
-      <h2 class="text-2xl text-neutral-900 font-medium">Center Details</h2>
-      <p class="text-base text-gray-600">Information about capacity and rates.</p>
+      <h2 class="text-2xl text-neutral-900 font-medium">Study Center Details</h2>
+      <p class="text-base text-gray-600">Provide specific information about your study center.</p>
 
       <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6 max-w-3xl">
         <FormInput
           class="sm:col-span-2"
           v-model="formState.capacity"
           label="Total Capacity"
-          placeholder="Maximum occupancy"
+          placeholder="Maximum number of people"
           type="number"
         />
 
-        <div class="sm:col-span-4">
-          <label class="text-sm font-medium text-gray-900">Hourly Rate Range</label>
-          <div class="mt-2 grid grid-cols-2 gap-4">
-            <FormInput
-              v-model="formState.hourlyRateRange[0]"
-              label="Minimum Rate"
-              placeholder="Min $/hour"
-              type="number"
-            />
-            <FormInput
-              v-model="formState.hourlyRateRange[1]"
-              label="Maximum Rate"
-              placeholder="Max $/hour"
-              type="number"
-            />
-          </div>
+        <!-- Hourly Rate Range -->
+        <div class="sm:col-span-4 grid grid-cols-2 gap-4">
+          <FormInput
+            v-model="formState.hourlyRateRange[0]"
+            label="Minimum Rate (per hour)"
+            placeholder="e.g., 10"
+            type="number"
+          />
+          <FormInput
+            v-model="formState.hourlyRateRange[1]"
+            label="Maximum Rate (per hour)"
+            placeholder="e.g., 25"
+            type="number"
+          />
         </div>
 
-        <!-- Room Types -->
+        <!-- 24/7 Access -->
         <div class="col-span-full">
-          <label class="text-sm font-medium text-gray-900">Available Rooms</label>
-          <div class="mt-4 grid grid-cols-2 gap-4">
-            <div v-for="room in commonRooms" :key="room" class="flex items-center gap-2">
-              <input 
-                type="checkbox" 
-                :id="room"
-                v-model="formState.rooms"
-                :value="room"
-                class="rounded border-gray-300"
-              />
-              <label :for="room" class="text-sm text-gray-900">{{ room }}</label>
-            </div>
-          </div>
+          <label class="inline-flex items-center">
+            <input 
+              type="checkbox" 
+              v-model="formState.has24Access"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+            />
+            <span class="ml-2 text-sm text-gray-900">24/7 Access Available</span>
+          </label>
+        </div>
+
+        <!-- Rooms -->
+        <div class="col-span-full">
+          <FormTextarea
+            v-model="roomsList"
+            label="Available Rooms"
+            placeholder="Enter room names, separated by commas"
+            :rows="3"
+            help-text="List all available study rooms"
+          />
         </div>
 
         <!-- Amenities -->
         <div class="col-span-full">
-          <label class="text-sm font-medium text-gray-900">Available Amenities</label>
+          <label class="text-sm font-medium text-gray-900">Amenities</label>
           <div class="mt-4 grid grid-cols-2 gap-4">
             <div v-for="amenity in commonAmenities" :key="amenity" class="flex items-center gap-2">
               <input 
@@ -181,7 +220,7 @@ const commonRooms = [
                 :id="amenity"
                 v-model="formState.amenities"
                 :value="amenity"
-                class="rounded border-gray-300"
+                class="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
               />
               <label :for="amenity" class="text-sm text-gray-900">{{ amenity }}</label>
             </div>

@@ -1,18 +1,28 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { University } from '~/types/education'
+import { InstitutionType } from '~/types/education'
 
 const formState = ref({
+  // Post interface fields
   title: '',
   description: '',
-  images: [],
-  featuredImage: '',
+  createdAt: new Date(),
+  userId: '1',
   address: '',
+  latitude: 0,
+  longitude: 0,
   website: '',
   phone: '',
   email: '',
+  featuredImage: '',
+
+  // Educational Institution fields
   isVerified: false,
   private: false,
+  type: InstitutionType.UNIVERSITY,
+
+  // University specific fields
   faculties: [] as string[],
   ranking: '',
   accreditation: '',
@@ -112,6 +122,35 @@ const facilitiesList = computed({
           placeholder="Full university address"
           type="text"
         />
+
+        <!-- Add Location Coordinates -->
+        <FormInput
+          class="sm:col-span-3"
+          v-model="formState.latitude"
+          label="Latitude"
+          placeholder="e.g., 40.7128"
+          type="number"
+        />
+
+        <FormInput
+          class="sm:col-span-3"
+          v-model="formState.longitude"
+          label="Longitude"
+          placeholder="e.g., -74.0060"
+          type="number"
+        />
+
+        <!-- Add Verification Status -->
+        <div class="col-span-full">
+          <label class="inline-flex items-center">
+            <input 
+              type="checkbox" 
+              v-model="formState.isVerified"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+            />
+            <span class="ml-2 text-sm text-gray-900">Verified Institution</span>
+          </label>
+        </div>
 
         <FormInput
           class="sm:col-span-3"
