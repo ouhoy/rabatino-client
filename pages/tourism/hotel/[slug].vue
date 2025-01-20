@@ -1,0 +1,192 @@
+<script setup lang="ts">
+import { ChevronRightIcon } from '@heroicons/vue/16/solid'
+import { GlobeAltIcon, PhoneIcon, EnvelopeIcon, MapPinIcon, ClockIcon, CurrencyDollarIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
+import type { Hotel } from '~/types/tourism'
+import { TourismType } from '~/types/tourism'
+
+const router = useRouter()
+const route = useRoute();
+const slug = route.params.slug;
+const pending = ref(false);
+
+const hotel = ref<Hotel>({
+  // Post interface fields
+  id: '1',
+  title: 'Grand Plaza Hotel',
+  description: 'Experience luxury and comfort in the heart of the city. Our hotel offers premium amenities, exceptional service, and stunning views.',
+  images: ['/images/hotel-main.jpg'],
+  createdAt: new Date(),
+  userId: '1',
+  address: '789 Luxury Avenue, Downtown District, City, 12345',
+  latitude: 40.7128,
+  longitude: -74.0060,
+  website: 'www.grandplazahotel.com',
+  phone: '+1 (555) 987-6543',
+  email: 'reservations@grandplazahotel.com',
+  featuredImage: '/images/hotel-featured.jpg',
+
+  // Tourism interface fields
+  isActive: true,
+  rating: 4.8,
+  type: TourismType.HOTEL,
+
+  // Hotel specific fields
+  amenities: [
+    'Free Wi-Fi',
+    'Swimming Pool',
+    'Spa & Wellness Center',
+    'Restaurant & Bar',
+    'Fitness Center',
+    'Conference Rooms',
+    'Room Service',
+    'Parking',
+    'Concierge Service',
+    'Business Center'
+  ],
+  priceRanges: '$200 - $800 per night',
+  totalRooms: 250,
+  roomTypes: 'Standard, Deluxe, Suite, Executive Suite, Presidential Suite',
+  checkInTime: '3:00 PM',
+});
+
+const amenityIcons = {
+  'Free Wi-Fi': '📶',
+  'Swimming Pool': '🏊‍♂️',
+  'Spa & Wellness Center': '💆‍♂️',
+  'Restaurant & Bar': '🍽️',
+  'Fitness Center': '🏋️‍♂️',
+  'Conference Rooms': '🤝',
+  'Room Service': '🛎️',
+  'Parking': '🅿️',
+  'Concierge Service': '💁‍♂️',
+  'Business Center': '💼'
+}
+</script>
+
+<template>
+  <main class="w-full flex flex-col items-center justify-center gap-10 mb-28 lg:my-10">
+    <!-- Featured Image Section -->
+    <section v-if="!pending" class="w-full">
+      <div class="w-full h-[500px] relative overflow-hidden rounded-2xl">
+        <img 
+          :src="hotel.featuredImage" 
+          :alt="hotel.title"
+          class="w-full h-full object-cover bg-gray-50"
+        />
+      </div>
+    </section>
+
+    <div v-if="!pending" class="w-full flex flex-col lg:flex-row items-start justify-between gap-4">
+      <section class="lg:max-w-2xl flex flex-col gap-10 items-start justify-center">
+        <!-- Title Section -->
+        <div class="w-full flex flex-col items-start justify-start gap-2">
+          <h2 class="first-letter:uppercase font-medium text-neutral-950 text-2xl leading-6">
+            {{ hotel.title }}
+          </h2>
+          <div class="flex items-center gap-4">
+            <span class="text-normal leading-none text-neutral-800">{{ TourismType.HOTEL }}</span>
+            <span class="text-normal leading-none text-neutral-800">⭐ {{ hotel.rating }}/5</span>
+          </div>
+        </div>
+
+        <!-- Key Information -->
+        <div class="w-full grid grid-cols-2 gap-4 p-6 bg-neutral-50 rounded-lg">
+          <div class="flex flex-col gap-2">
+            <p class="font-medium">Check-in Time</p>
+            <div class="flex items-center gap-2">
+              <ClockIcon class="h-5 w-5 text-neutral-600" />
+              <p>{{ hotel.checkInTime }}</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="font-medium">Price Range</p>
+            <div class="flex items-center gap-2">
+              <CurrencyDollarIcon class="h-5 w-5 text-neutral-600" />
+              <p>{{ hotel.priceRanges }}</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="font-medium">Total Rooms</p>
+            <p>{{ hotel.totalRooms }} rooms</p>
+          </div>
+          <div class="flex flex-col gap-2">
+            <p class="font-medium">Room Types</p>
+            <p>{{ hotel.roomTypes }}</p>
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="w-full flex flex-col gap-4 p-6 bg-neutral-50 rounded-lg">
+          <h3 class="font-medium text-lg">Contact Information</h3>
+          <div class="grid grid-cols-1 gap-4">
+            <div class="flex items-start gap-2">
+              <MapPinIcon class="h-5 w-5 text-neutral-600 mt-0.5" />
+              <p class="text-neutral-900">{{ hotel.address }}</p>
+            </div>
+            <div v-if="hotel.website" class="flex items-center gap-2">
+              <GlobeAltIcon class="h-5 w-5 text-neutral-600" />
+              <a :href="`https://${hotel.website}`" 
+                 target="_blank" 
+                 class="text-blue-600 hover:underline">
+                {{ hotel.website }}
+              </a>
+            </div>
+            <div v-if="hotel.phone" class="flex items-center gap-2">
+              <PhoneIcon class="h-5 w-5 text-neutral-600" />
+              <a :href="`tel:${hotel.phone}`" 
+                 class="text-blue-600 hover:underline">
+                {{ hotel.phone }}
+              </a>
+            </div>
+            <div v-if="hotel.email" class="flex items-center gap-2">
+              <EnvelopeIcon class="h-5 w-5 text-neutral-600" />
+              <a :href="`mailto:${hotel.email}`" 
+                 class="text-blue-600 hover:underline">
+                {{ hotel.email }}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <section class="w-full flex flex-col gap-6 items-start justify-center">
+          <p class="text-neutral-950 font-medium text-2xl leading-6">About this hotel</p>
+          <p class="max-w-2xl w-full text-normal leading-6 text-neutral-950">
+            {{ hotel.description }}
+          </p>
+        </section>
+
+        <!-- Amenities -->
+        <section class="w-full flex flex-col gap-6 items-start justify-center">
+          <p class="text-neutral-950 font-medium text-2xl leading-6">Hotel Amenities</p>
+          <div class="grid grid-cols-2 gap-6">
+            <div v-for="amenity in hotel.amenities" :key="amenity"
+                 class="flex items-center justify-start gap-2">
+              <span class="text-2xl">{{ amenityIcons[amenity] }}</span>
+              <p class="text-normal leading-none text-neutral-950">{{ amenity }}</p>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Right side section for booking widget -->
+      <div class="lg:w-[400px] w-full sticky top-4">
+    
+      </div>
+    </div>
+
+    <!-- Map Location -->
+    <section v-if="!pending" class="w-full flex flex-col gap-6 items-start justify-center">
+      <p class="text-neutral-950 font-medium text-2xl leading-6">Location</p>
+      <div class="w-full bg-neutral-300 rounded-2xl h-96">
+        <!-- Add map component here using hotel.latitude and hotel.longitude -->
+      </div>
+    </section>
+  </main>
+</template>
+
+<style scoped>
+[data-radix-popper-content-wrapper] {
+  @apply !top-2 !right-0;
+}
+</style>

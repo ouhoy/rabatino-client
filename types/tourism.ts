@@ -37,3 +37,11 @@ export interface TouristAttraction extends Tourism {
   guideTours: boolean;
   
 }
+
+export interface Hotel extends Tourism {
+    amenities: string[];
+    priceRanges: string;
+    totalRooms: number;
+    roomTypes: string;
+    checkInTime: string;
+  }
