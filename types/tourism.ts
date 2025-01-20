@@ -45,3 +45,11 @@ export interface Hotel extends Tourism {
     roomTypes: string;
     checkInTime: string;
   }
+  export interface Restaurant extends Tourism {
+    cuisine: string;
+    priceRanges: string;
+    menus: string;
+    openiningHours: string;
+    takout: boolean;
+    delivery: boolean;
+  }
