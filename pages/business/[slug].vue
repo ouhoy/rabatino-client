@@ -74,7 +74,7 @@ function formatDate(date: Date) {
         <div class="w-full flex flex-wrap gap-2">
           <div v-for="tag in business.tags" 
                :key="tag"
-               class="flex items-center gap-1 px-3 py-1 bg-neutral-50 rounded-full">
+               class="flex items-center gap-2 px-3 py-1 bg-neutral-50 rounded-full whitespace-nowrap">
             <TagIcon class="h-4 w-4 text-neutral-600" />
             <span class="text-sm text-neutral-600">{{ tag }}</span>
           </div>
