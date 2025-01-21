@@ -1,7 +1,48 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { z } from 'zod'
 import type { CoachingCenter } from '~/types/education'
 import { InstitutionType } from '~/types/education'
+
+// Zod schema based on CoachingCenter interface
+const coachingCenterSchema = z.object({
+  // Post interface fields
+  title: z.string().min(3, 'Center name must be at least 3 characters').max(100, 'Name is too long'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  address: z.string().min(5, 'Address is required'),
+  latitude: z.number({ invalid_type_error: 'Latitude is required' }),
+  longitude: z.number({ invalid_type_error: 'Longitude is required' }),
+  website: z.string().url('Must be a valid URL').optional(),
+  phone: z.string().optional(),
+  email: z.string().email('Must be a valid email').optional(),
+  featuredImage: z.string().url('Must be a valid image URL'),
+
+  // Educational Institution fields
+  isVerified: z.boolean(),
+  private: z.boolean(),
+  type: z.nativeEnum(InstitutionType),
+
+  // CoachingCenter specific fields
+  specialty: z.string().min(3, 'Specialty is required'),
+  courses: z.array(z.string()).min(1, 'At least one course is required'),
+  schedule: z.string().min(3, 'Schedule information is required')
+})
+
+// Form errors state
+const errors = ref({
+  title: '',
+  description: '',
+  address: '',
+  latitude: '',
+  longitude: '',
+  website: '',
+  phone: '',
+  email: '',
+  featuredImage: '',
+  specialty: '',
+  courses: '',
+  schedule: ''
+})
 
 const formState = ref({
   // Post interface fields
@@ -35,8 +76,34 @@ const coursesList = computed({
   }
 })
 
+const validateForm = () => {
+  // Reset errors
+  Object.keys(errors.value).forEach(key => {
+    errors.value[key as keyof typeof errors.value] = ''
+  })
+
+  try {
+    coachingCenterSchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    return false
+  }
+}
+
 const handleSubmit = () => {
-  console.log('Submitting Coaching Center:', formState.value)
+  if (validateForm()) {
+    console.log('Submitting Coaching Center:', formState.value)
+    // Proceed with form submission
+  } else {
+    console.log('Form validation failed', errors.value)
+  }
 }
 </script>
 
@@ -54,6 +121,7 @@ const handleSubmit = () => {
           label="Center Name"
           placeholder="Enter coaching center name"
           type="text"
+          :error="errors.title"
         />
 
         <FormTextarea
@@ -63,6 +131,7 @@ const handleSubmit = () => {
           placeholder="Describe your coaching center..."
           :rows="4"
           help-text="Highlight your teaching methods, success rates, and specialties."
+          :error="errors.description"
         />
 
         <div class="col-span-full">
@@ -86,6 +155,7 @@ const handleSubmit = () => {
           label="Address"
           placeholder="Full address"
           type="text"
+          :error="errors.address"
         />
 
         <!-- Add Location Coordinates -->
@@ -95,6 +165,7 @@ const handleSubmit = () => {
           label="Latitude"
           placeholder="e.g., 40.7128"
           type="number"
+          :error="errors.latitude"
         />
 
         <FormInput
@@ -103,6 +174,7 @@ const handleSubmit = () => {
           label="Longitude"
           placeholder="e.g., -74.0060"
           type="number"
+          :error="errors.longitude"
         />
 
         <!-- Add Verification Status -->
@@ -123,6 +195,7 @@ const handleSubmit = () => {
           label="Phone"
           placeholder="Contact number"
           type="tel"
+          :error="errors.phone"
         />
 
         <FormInput
@@ -131,6 +204,7 @@ const handleSubmit = () => {
           label="Email"
           placeholder="Contact email"
           type="email"
+          :error="errors.email"
         />
 
         <FormInput
@@ -139,6 +213,7 @@ const handleSubmit = () => {
           label="Website"
           placeholder="www.example.com"
           type="url"
+          :error="errors.website"
         />
       </div>
     </div>
@@ -155,6 +230,7 @@ const handleSubmit = () => {
           label="Specialty"
           placeholder="e.g., Test Preparation, Academic Support"
           type="text"
+          :error="errors.specialty"
         />
 
         <FormInput
@@ -163,6 +239,7 @@ const handleSubmit = () => {
           label="Schedule"
           placeholder="e.g., Monday-Friday 9AM-6PM, Weekend Sessions Available"
           type="text"
+          :error="errors.schedule"
         />
 
         <FormTextarea
@@ -172,6 +249,7 @@ const handleSubmit = () => {
           placeholder="Enter courses separated by commas"
           :rows="3"
           help-text="List all courses and programs offered"
+          :error="errors.courses"
         />
       </div>
     </div>
@@ -188,6 +266,7 @@ const handleSubmit = () => {
           label="Featured Image URL"
           placeholder="https://example.com/image.jpg"
           type="url"
+          :error="errors.featuredImage"
         />
       </div>
     </div>

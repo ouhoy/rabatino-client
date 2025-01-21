@@ -1,7 +1,54 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { z } from 'zod'
 import type { JobPost } from '~/types/jobs'
 import { JobType, WorkLocation } from '~/types/jobs'
+
+// Zod schema based on JobPost interface
+const jobSchema = z.object({
+  // Post interface fields
+  title: z.string().min(3, 'Job title must be at least 3 characters').max(100, 'Title is too long'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  address: z.string().min(5, 'Address is required'),
+  latitude: z.number({ invalid_type_error: 'Latitude is required' }),
+  longitude: z.number({ invalid_type_error: 'Longitude is required' }),
+  website: z.string().url('Must be a valid URL'),
+  phone: z.string().optional(),
+  email: z.string().email('Must be a valid email'),
+  featuredImage: z.string().url('Must be a valid image URL'),
+
+  // JobPost specific fields
+  company: z.string().min(2, 'Company name is required'),
+  logo: z.string().url('Must be a valid logo URL'),
+  location: z.string().min(2, 'Location is required'),
+  salary: z.string().min(1, 'Salary range is required'),
+  jobType: z.nativeEnum(JobType),
+  workLocation: z.nativeEnum(WorkLocation),
+  requirements: z.array(z.string()).min(1, 'At least one requirement is required'),
+  applicationLink: z.string().url('Must be a valid application URL'),
+  expiryDate: z.string().min(1, 'Expiry date is required'),
+  isActive: z.boolean()
+})
+
+// Form errors state
+const errors = ref({
+  title: '',
+  description: '',
+  address: '',
+  latitude: '',
+  longitude: '',
+  website: '',
+  phone: '',
+  email: '',
+  featuredImage: '',
+  company: '',
+  logo: '',
+  location: '',
+  salary: '',
+  requirements: '',
+  applicationLink: '',
+  expiryDate: ''
+})
 
 const formState = ref({
   // Basic Post interface fields
@@ -47,10 +94,40 @@ const handleRequirementsChange = (value: string) => {
   formState.value.requirements = value.split('\n').filter(line => line.trim() !== '')
   requirementsList.value = value
 }
+
+const validateForm = () => {
+  // Reset errors
+  Object.keys(errors.value).forEach(key => {
+    errors.value[key as keyof typeof errors.value] = ''
+  })
+
+  try {
+    jobSchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    return false
+  }
+}
+
+const handleSubmit = () => {
+  if (validateForm()) {
+    console.log('Submitting Job:', formState.value)
+    // Proceed with form submission
+  } else {
+    console.log('Form validation failed', errors.value)
+  }
+}
 </script>
 
 <template>
-  <form class="space-y-12">
+  <form @submit.prevent="handleSubmit" class="space-y-12">
     <!-- Basic Information -->
     <div class="border-b border-gray-900/10 pb-12">
       <h2 class="text-2xl text-neutral-900 font-medium">Job Details</h2>
@@ -63,6 +140,7 @@ const handleRequirementsChange = (value: string) => {
           label="Job Title"
           placeholder="e.g., Senior Software Engineer"
           type="text"
+          :error="errors.title"
         />
 
         <FormInput
@@ -71,6 +149,7 @@ const handleRequirementsChange = (value: string) => {
           label="Company Name"
           placeholder="Enter company name"
           type="text"
+          :error="errors.company"
         />
 
         <FormTextarea
@@ -80,6 +159,7 @@ const handleRequirementsChange = (value: string) => {
           placeholder="Describe the role and responsibilities..."
           :rows="4"
           help-text="Include key responsibilities and expectations."
+          :error="errors.description"
         />
       </div>
     </div>
@@ -134,6 +214,7 @@ const handleRequirementsChange = (value: string) => {
           label="Salary Range"
           placeholder="e.g., $60,000 - $80,000"
           type="text"
+          :error="errors.salary"
         />
 
         <FormInput
@@ -142,6 +223,7 @@ const handleRequirementsChange = (value: string) => {
           label="Location"
           placeholder="e.g., New York, NY"
           type="text"
+          :error="errors.location"
         />
 
         <FormInput
@@ -150,6 +232,7 @@ const handleRequirementsChange = (value: string) => {
           label="Application Deadline"
           type="date"
           placeholder=""
+          :error="errors.expiryDate"
         />
       </div>
    
@@ -168,6 +251,7 @@ const handleRequirementsChange = (value: string) => {
           :rows="6"
           help-text="List qualifications, skills, and experience required."
           @input="handleRequirementsChange"
+          :error="errors.requirements"
         />
       </div>
     </div>
@@ -184,6 +268,7 @@ const handleRequirementsChange = (value: string) => {
           label="Application URL"
           placeholder="https://careers.company.com/apply"
           type="url"
+          :error="errors.applicationLink"
         />
 
         <FormInput
@@ -192,6 +277,7 @@ const handleRequirementsChange = (value: string) => {
           label="Contact Email"
           placeholder="careers@company.com"
           type="email"
+          :error="errors.email"
         />
 
         <FormInput
@@ -200,6 +286,7 @@ const handleRequirementsChange = (value: string) => {
           label="Contact Phone"
           placeholder="+1 (555) 123-4567"
           type="tel"
+          :error="errors.phone"
         />
       </div>
     </div>
@@ -216,6 +303,7 @@ const handleRequirementsChange = (value: string) => {
           label="Company Website"
           placeholder="www.company.com"
           type="url"
+          :error="errors.website"
         />
 
         <FormInput
@@ -224,6 +312,7 @@ const handleRequirementsChange = (value: string) => {
           label="Company Logo URL"
           placeholder="https://company.com/logo.png"
           type="url"
+          :error="errors.logo"
         />
 
         <FormInput
@@ -232,6 +321,7 @@ const handleRequirementsChange = (value: string) => {
           label="Company Address"
           placeholder="Full company address"
           type="text"
+          :error="errors.address"
         />
       </div>
     </div>
@@ -248,6 +338,7 @@ const handleRequirementsChange = (value: string) => {
           label="Latitude"
           placeholder="e.g., 40.7128"
           type="number"
+          :error="errors.latitude"
         />
 
         <FormInput
@@ -256,6 +347,7 @@ const handleRequirementsChange = (value: string) => {
           label="Longitude"
           placeholder="e.g., -74.0060"
           type="number"
+          :error="errors.longitude"
         />
       </div>
     </div>
@@ -272,6 +364,7 @@ const handleRequirementsChange = (value: string) => {
           label="Featured Image URL"
           placeholder="https://example.com/featured-image.jpg"
           type="url"
+          :error="errors.featuredImage"
         />
       </div>
     </div>

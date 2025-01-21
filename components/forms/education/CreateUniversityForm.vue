@@ -1,7 +1,53 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { z } from 'zod'
 import type { University } from '~/types/education'
 import { InstitutionType } from '~/types/education'
+
+// Zod schema based on University interface
+const universitySchema = z.object({
+  // Post interface fields
+  title: z.string().min(3, 'University name must be at least 3 characters').max(100, 'Name is too long'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  address: z.string().min(5, 'Address is required'),
+  latitude: z.number({ invalid_type_error: 'Latitude is required' }),
+  longitude: z.number({ invalid_type_error: 'Longitude is required' }),
+  website: z.string().url('Must be a valid URL').optional(),
+  phone: z.string().optional(),
+  email: z.string().email('Must be a valid email').optional(),
+  featuredImage: z.string().url('Must be a valid image URL'),
+
+  // Educational Institution fields
+  isVerified: z.boolean(),
+  private: z.boolean(),
+  type: z.nativeEnum(InstitutionType),
+
+  // University specific fields
+  faculties: z.array(z.string()).min(1, 'At least one faculty is required'),
+  ranking: z.string().min(1, 'Ranking information is required'),
+  accreditation: z.string().min(1, 'Accreditation information is required'),
+  hasHousing: z.boolean(),
+  researchCenters: z.array(z.string()),
+  facilities: z.array(z.string()).min(1, 'At least one facility is required')
+})
+
+// Form errors state
+const errors = ref({
+  title: '',
+  description: '',
+  address: '',
+  latitude: '',
+  longitude: '',
+  website: '',
+  phone: '',
+  email: '',
+  featuredImage: '',
+  faculties: '',
+  ranking: '',
+  accreditation: '',
+  facilities: '',
+  researchCenters: ''
+})
 
 const formState = ref({
   // Post interface fields
@@ -66,8 +112,35 @@ const facilitiesList = computed({
   }
 })
 
+const validateForm = () => {
+  // Reset errors
+  Object.keys(errors.value).forEach(key => {
+    errors.value[key as keyof typeof errors.value] = ''
+  })
+
+  try {
+    universitySchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          // Set error message for the specific field
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    return false
+  }
+}
+
 const handleSubmit = () => {
-  console.log('Submitting University:', formState.value)
+  if (validateForm()) {
+    console.log('Submitting University:', formState.value)
+    // Proceed with form submission
+  } else {
+    console.log('Form validation failed', errors.value)
+  }
 }
 </script>
 
@@ -85,6 +158,7 @@ const handleSubmit = () => {
           label="University Name"
           placeholder="Enter university name"
           type="text"
+          :error="errors.title"
         />
 
         <FormTextarea
@@ -94,6 +168,7 @@ const handleSubmit = () => {
           placeholder="Describe your university..."
           :rows="4"
           help-text="Include information about programs, history, and unique features."
+          :error="errors.description"
         />
 
         <!-- University Type -->
@@ -125,6 +200,7 @@ const handleSubmit = () => {
           label="Address"
           placeholder="Full university address"
           type="text"
+          :error="errors.address"
         />
 
         <!-- Add Location Coordinates -->
@@ -134,6 +210,7 @@ const handleSubmit = () => {
           label="Latitude"
           placeholder="e.g., 40.7128"
           type="number"
+          :error="errors.latitude"
         />
 
         <FormInput
@@ -142,6 +219,7 @@ const handleSubmit = () => {
           label="Longitude"
           placeholder="e.g., -74.0060"
           type="number"
+          :error="errors.longitude"
         />
 
         <!-- Add Verification Status -->
@@ -162,6 +240,7 @@ const handleSubmit = () => {
           label="Phone"
           placeholder="Administrative contact"
           type="tel"
+          :error="errors.phone"
         />
 
         <FormInput
@@ -170,6 +249,7 @@ const handleSubmit = () => {
           label="Email"
           placeholder="Admissions email"
           type="email"
+          :error="errors.email"
         />
 
         <FormInput
@@ -178,6 +258,7 @@ const handleSubmit = () => {
           label="Website"
           placeholder="University website"
           type="url"
+          :error="errors.website"
         />
       </div>
     </div>
@@ -194,6 +275,7 @@ const handleSubmit = () => {
           label="University Ranking"
           placeholder="e.g., Top 100 Global Universities"
           type="text"
+          :error="errors.ranking"
         />
 
         <FormInput
@@ -202,6 +284,7 @@ const handleSubmit = () => {
           label="Accreditation"
           placeholder="e.g., National Education Board"
           type="text"
+          :error="errors.accreditation"
         />
 
         <!-- Faculties Input -->
@@ -212,6 +295,7 @@ const handleSubmit = () => {
             placeholder="Enter faculties, separated by commas"
             :rows="3"
             help-text="List all available faculties"
+            :error="errors.faculties"
           />
         </div>
 
@@ -223,6 +307,7 @@ const handleSubmit = () => {
             placeholder="Enter research centers, separated by commas"
             :rows="3"
             help-text="List major research centers"
+            :error="errors.researchCenters"
           />
         </div>
       </div>
@@ -253,6 +338,7 @@ const handleSubmit = () => {
           placeholder="Enter facilities, separated by commas"
           :rows="3"
           help-text="List all available facilities"
+          :error="errors.facilities"
         />
       </div>
     </div>
@@ -269,6 +355,7 @@ const handleSubmit = () => {
           label="Featured Image URL"
           placeholder="https://example.com/image.jpg"
           type="url"
+          :error="errors.featuredImage"
         />
       </div>
     </div>

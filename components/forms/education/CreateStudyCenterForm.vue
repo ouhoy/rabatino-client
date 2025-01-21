@@ -1,7 +1,51 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { z } from 'zod'
 import type { StudyCenter } from '~/types/education'
 import { InstitutionType } from '~/types/education'
+
+// Zod schema based on StudyCenter interface
+const studyCenterSchema = z.object({
+  // Post interface fields
+  title: z.string().min(3, 'Center name must be at least 3 characters').max(100, 'Name is too long'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  address: z.string().min(5, 'Address is required'),
+  latitude: z.number({ invalid_type_error: 'Latitude is required' }),
+  longitude: z.number({ invalid_type_error: 'Longitude is required' }),
+  website: z.string().url('Must be a valid URL').optional(),
+  phone: z.string().optional(),
+  email: z.string().email('Must be a valid email').optional(),
+  featuredImage: z.string().url('Must be a valid image URL'),
+
+  // Educational Institution fields
+  isVerified: z.boolean(),
+  private: z.boolean(),
+  type: z.nativeEnum(InstitutionType),
+
+  // StudyCenter specific fields
+  capacity: z.number().min(1, 'Capacity must be at least 1'),
+  amenities: z.array(z.string()).min(1, 'At least one amenity is required'),
+  hourlyRateRange: z.array(z.number()).length(2, 'Must specify minimum and maximum rates'),
+  has24Access: z.boolean(),
+  rooms: z.array(z.string()).min(1, 'At least one room is required')
+})
+
+// Form errors state
+const errors = ref({
+  title: '',
+  description: '',
+  address: '',
+  latitude: '',
+  longitude: '',
+  website: '',
+  phone: '',
+  email: '',
+  featuredImage: '',
+  capacity: '',
+  amenities: '',
+  hourlyRateRange: '',
+  rooms: ''
+})
 
 const formState = ref({
   // Post interface fields
@@ -48,8 +92,34 @@ const roomsList = computed({
   }
 })
 
+const validateForm = () => {
+  // Reset errors
+  Object.keys(errors.value).forEach(key => {
+    errors.value[key as keyof typeof errors.value] = ''
+  })
+
+  try {
+    studyCenterSchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    return false
+  }
+}
+
 const handleSubmit = () => {
-  console.log('Submitting Study Center:', formState.value)
+  if (validateForm()) {
+    console.log('Submitting Study Center:', formState.value)
+    // Proceed with form submission
+  } else {
+    console.log('Form validation failed', errors.value)
+  }
 }
 </script>
 
@@ -67,6 +137,7 @@ const handleSubmit = () => {
           label="Study Center Name"
           placeholder="Enter study center name"
           type="text"
+          :error="errors.title"
         />
 
         <FormTextarea
@@ -173,6 +244,7 @@ const handleSubmit = () => {
           label="Total Capacity"
           placeholder="Maximum number of people"
           type="number"
+          :error="errors.capacity"
         />
 
         <!-- Hourly Rate Range -->
@@ -211,6 +283,7 @@ const handleSubmit = () => {
             placeholder="Enter room names, separated by commas"
             :rows="3"
             help-text="List all available study rooms"
+            :error="errors.rooms"
           />
         </div>
 
