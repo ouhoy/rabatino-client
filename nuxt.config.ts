@@ -3,6 +3,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   modules: ['@nuxtjs/google-fonts', '@nuxtjs/tailwindcss'],
+  runtimeConfig: {
+
+    // Public keys that are exposed to the client
+    public: {
+      apiBaseUrl: process.env.BASE_URL
+    }
+  },
   googleFonts: {
     families: {
       Inter: [400, 500, 600, 700],

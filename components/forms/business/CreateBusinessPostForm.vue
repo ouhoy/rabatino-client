@@ -3,6 +3,9 @@ import { ref, computed } from 'vue'
 import { z } from 'zod'
 import type { BusinessPost } from '~/types/business'
 
+const config = useRuntimeConfig()
+const isLoading = ref(false)
+
 // Zod schema based on BusinessPost interface
 const businessPostSchema = z.object({
   title: z.string().min(3, 'Title must be at least 3 characters').max(100, 'Title is too long'),
@@ -58,12 +61,40 @@ const validateForm = () => {
   }
 }
 
-const handleSubmit = () => {
-  if (validateForm()) {
-    console.log('Submitting Business Post:', formState.value)
-    // Proceed with form submission
-  } else {
+const handleSubmit = async () => {
+  if (!validateForm()) {
     console.log('Form validation failed', errors.value)
+    return
+  }
+
+  isLoading.value = true
+  try {
+    const response = await fetch(`${config.public.apiBaseUrl}/business/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formState.value)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create post')
+    }
+
+    const data = await response.json()
+    console.log('Post created successfully:', data)
+    // Reset form
+    formState.value = {
+      title: '',
+      body: '',
+      featuredImg: '',
+      tags: []
+    }
+  } catch (error) {
+    console.error('Error creating post:', error)
+    // Handle error (you might want to show an error message to the user)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -127,8 +158,12 @@ const handleSubmit = () => {
 
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Publish Post
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Publishing...' : 'Publish Post' }}
       </button>
     </div>
   </form>
