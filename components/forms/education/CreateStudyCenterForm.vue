@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { z } from 'zod'
 import type { StudyCenter } from '~/types/education'
 import { InstitutionType } from '~/types/education'
+const config = useRuntimeConfig()
+const isLoading = ref(false)
 
 // Zod schema based on StudyCenter interface
 const studyCenterSchema = z.object({
@@ -113,12 +115,79 @@ const validateForm = () => {
   }
 }
 
-const handleSubmit = () => {
-  if (validateForm()) {
-    console.log('Submitting Study Center:', formState.value)
-    // Proceed with form submission
-  } else {
+const handleSubmit = async () => {
+  if (!validateForm()) {
     console.log('Form validation failed', errors.value)
+    return
+  }
+
+  isLoading.value = true
+  try {
+    // Restructure the data to match API requirements
+    const studyCenterData = {
+      title: formState.value.title,
+      userId: 1, // Hardcoded for now, should come from auth context
+      typeId: 2, // Education type
+      description: formState.value.description,
+      address: formState.value.address,
+      latitude: formState.value.latitude,
+      longitude: formState.value.longitude,
+      website: formState.value.website || null,
+      phone: formState.value.phone || null,
+      email: formState.value.email || null,
+      featuredImage: formState.value.featuredImage,
+
+      isVerified: formState.value.isVerified,
+      private: formState.value.private,
+      institutionType: 'STUDY_CENTER',
+
+      capacity: Number(formState.value.capacity),
+      amenities: formState.value.amenities,
+      hourlyRateRange: formState.value.hourlyRateRange,
+      hasAccess: formState.value.has24Access, // Map has24Access to hasAccess
+      rooms: formState.value.rooms
+    }
+
+    const response = await fetch(`${config.public.apiBaseUrl}/education/study-centers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(studyCenterData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create study center')
+    }
+
+    const data = await response.json()
+    console.log('Study center created successfully:', data)
+    // Reset form
+    formState.value = {
+      title: '',
+      description: '',
+      createdAt: new Date(),
+      userId: '1',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      website: '',
+      phone: '',
+      email: '',
+      featuredImage: '',
+      isVerified: false,
+      private: false,
+      type: InstitutionType.STUDY_CENTER,
+      capacity: 0,
+      amenities: [],
+      hourlyRateRange: [0, 0],
+      has24Access: false,
+      rooms: []
+    }
+  } catch (error) {
+    console.error('Error creating study center:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -324,8 +393,12 @@ const handleSubmit = () => {
 
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Create Study Center Listing
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Creating Center...' : 'Create Study Center' }}
       </button>
     </div>
   </form>
