@@ -4,6 +4,9 @@ import { z } from 'zod'
 import type { Library } from '~/types/education'
 import { InstitutionType } from '~/types/education'
 
+const config = useRuntimeConfig()
+const isLoading = ref(false)
+
 // Zod schema based on Library interface
 const librarySchema = z.object({
   // Post interface fields
@@ -116,12 +119,81 @@ const validateForm = () => {
   }
 }
 
-const handleSubmit = () => {
-  if (validateForm()) {
-    console.log('Submitting Library:', formState.value)
-    // Proceed with form submission
-  } else {
+const handleSubmit = async () => {
+  if (!validateForm()) {
     console.log('Form validation failed', errors.value)
+    return
+  }
+
+  isLoading.value = true
+  try {
+    // Restructure the data to match API requirements
+    const libraryData = {
+      title: formState.value.title,
+      userId: 1, // Hardcoded for now, should come from auth context
+      typeId: 2, // Education type
+      description: formState.value.description,
+      address: formState.value.address,
+      latitude: formState.value.latitude,
+      longitude: formState.value.longitude,
+      website: formState.value.website || null,
+      phone: formState.value.phone || null,
+      email: formState.value.email || null,
+      featuredImage: formState.value.featuredImage,
+
+      isVerified: formState.value.isVerified,
+      private: formState.value.private,
+      institutionType: 'LIBRARY',
+
+      bookCount: Number(formState.value.bookCount),
+      sections: formState.value.sections,
+      hasDigitalAccess: formState.value.hasDigitalAccess,
+      operationHours: formState.value.operationHours,
+      hasPrinting: formState.value.hasPrinting,
+      hasStudyRooms: formState.value.hasStudyRooms
+    }
+
+    const response = await fetch(`${config.public.apiBaseUrl}/education/libraries`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(libraryData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create library')
+    }
+
+    const data = await response.json()
+    console.log('Library created successfully:', data)
+    // Reset form
+    formState.value = {
+      title: '',
+      description: '',
+      createdAt: new Date(),
+      userId: '1',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      website: '',
+      phone: '',
+      email: '',
+      featuredImage: '',
+      isVerified: false,
+      private: false,
+      type: InstitutionType.LIBRARY,
+      bookCount: 0,
+      sections: [],
+      hasDigitalAccess: false,
+      operationHours: '',
+      hasPrinting: false,
+      hasStudyRooms: false
+    }
+  } catch (error) {
+    console.error('Error creating library:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -341,8 +413,12 @@ const handleSubmit = () => {
 
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Create Library Listing
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Creating Library...' : 'Create Library Listing' }}
       </button>
     </div>
   </form>

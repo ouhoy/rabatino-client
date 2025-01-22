@@ -4,6 +4,9 @@ import { z } from 'zod'
 import type { CoachingCenter } from '~/types/education'
 import { InstitutionType } from '~/types/education'
 
+const config = useRuntimeConfig()
+
+
 // Zod schema based on CoachingCenter interface
 const coachingCenterSchema = z.object({
   // Post interface fields
@@ -97,12 +100,77 @@ const validateForm = () => {
   }
 }
 
-const handleSubmit = () => {
-  if (validateForm()) {
-    console.log('Submitting Coaching Center:', formState.value)
-    // Proceed with form submission
-  } else {
+const isLoading = ref(false)
+
+const handleSubmit = async () => {
+  if (!validateForm()) {
     console.log('Form validation failed', errors.value)
+    return
+  }
+
+  isLoading.value = true
+  try {
+    // Restructure the data to match API requirements
+    const coachingData = {
+      title: formState.value.title,
+      userId: 1, // Hardcoded for now, should come from auth context
+      typeId: 2, 
+      description: formState.value.description,
+      address: formState.value.address,
+      latitude: formState.value.latitude,
+      longitude: formState.value.longitude,
+      website: formState.value.website || null,
+      phone: formState.value.phone || null,
+      email: formState.value.email || null,
+      featuredImage: formState.value.featuredImage,
+      
+      isVerified: formState.value.isVerified,
+      private: formState.value.private,
+      institutionType: 'COACHING_CENTER',
+
+      specialty: formState.value.specialty,
+      courses: formState.value.courses,
+      schedule: formState.value.schedule
+    }
+
+    const response = await fetch(`${config.public.apiBaseUrl}/education/coaching-centers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(coachingData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create coaching center')
+    }
+
+    const data = await response.json()
+    console.log('Coaching center created successfully:', data)
+    // Reset form
+    formState.value = {
+      title: '',
+      description: '',
+      createdAt: new Date(),
+      userId: '1',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      website: '',
+      phone: '',
+      email: '',
+      featuredImage: '',
+      isVerified: false,
+      private: false,
+      type: InstitutionType.COACHING_CENTER,
+      specialty: '',
+      courses: [],
+      schedule: ''
+    }
+  } catch (error) {
+    console.error('Error creating coaching center:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -273,8 +341,12 @@ const handleSubmit = () => {
 
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Create Coaching Center Listing
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Creating Center...' : 'Create Coaching Center' }}
       </button>
     </div>
   </form>
