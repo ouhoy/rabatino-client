@@ -1,7 +1,48 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { z } from 'zod'
 import type { TouristAttraction } from '~/types/tourism'
 import { TourismType } from '~/types/tourism'
+
+const config = useRuntimeConfig()
+const isLoading = ref(false)
+
+// Add Zod schema for validation
+const attractionSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  address: z.string().min(5, 'Address is required'),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  website: z.string().url().optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+  featuredImage: z.string().url(),
+  attractionType: z.string().min(2),
+  bestVisitTime: z.string().min(2),
+  entryFee: z.number().min(0),
+  openingHours: z.string().min(2),
+  guideTours: z.boolean(),
+  rating: z.number().min(0).max(5),
+  isActive: z.boolean()
+})
+
+// Add error state
+const errors = ref({
+  title: '',
+  description: '',
+  address: '',
+  latitude: '',
+  longitude: '',
+  website: '',
+  phone: '',
+  email: '',
+  featuredImage: '',
+  attractionType: '',
+  bestVisitTime: '',
+  entryFee: '',
+  openingHours: '',
+})
 
 const formState = ref({
   // Post interface fields
@@ -43,8 +84,101 @@ const commonAttractionTypes = [
   'Cultural Center'
 ]
 
-const handleSubmit = () => {
-  console.log('Submitting Tourist Attraction:', formState.value)
+const validateForm = () => {
+  // Reset errors
+  Object.keys(errors.value).forEach(key => {
+    errors.value[key as keyof typeof errors.value] = ''
+  })
+
+  try {
+    attractionSchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    return false
+  }
+}
+
+const handleSubmit = async () => {
+  if (!validateForm()) {
+    console.log('Form validation failed', errors.value)
+    return
+  }
+
+  isLoading.value = true
+  try {
+    // Restructure the data to match API requirements
+    const attractionData = {
+      title: formState.value.title,
+      userId: 1, // Hardcoded for now, should come from auth context
+      typeId: 4, // Tourism type
+      description: formState.value.description,
+      address: formState.value.address,
+      latitude: formState.value.latitude,
+      longitude: formState.value.longitude,
+      website: formState.value.website || null,
+      phone: formState.value.phone || null,
+      email: formState.value.email || null,
+      featuredImage: formState.value.featuredImage,
+
+      isActive: formState.value.isActive,
+      rating: formState.value.rating,
+      tourismType: 'ATTRACTION',
+
+      attractionType: formState.value.attractionType,
+      bestVisitTime: formState.value.bestVisitTime,
+      entryFee: Number(formState.value.entryFee),
+      openingHours: formState.value.openingHours,
+      guideTours: formState.value.guideTours
+    }
+
+    const response = await fetch(`${config.public.apiBaseUrl}/tourism/attractions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(attractionData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create attraction')
+    }
+
+    const data = await response.json()
+    console.log('Attraction created successfully:', data)
+    // Reset form
+    formState.value = {
+      title: '',
+      description: '',
+      createdAt: new Date(),
+      userId: '1',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      website: '',
+      phone: '',
+      email: '',
+      featuredImage: '',
+      isActive: true,
+      rating: 0,
+      type: TourismType.ATTRACTION,
+      attractionType: '',
+      bestVisitTime: '',
+      entryFee: 0,
+      openingHours: '',
+      guideTours: false,
+    }
+  } catch (error) {
+    console.error('Error creating attraction:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -225,8 +359,12 @@ const handleSubmit = () => {
 
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Create Attraction Listing
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Creating Attraction...' : 'Create Attraction Listing' }}
       </button>
     </div>
   </form>
