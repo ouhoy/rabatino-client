@@ -201,6 +201,7 @@ const handleSubmit = async () => {
           label="Hotel Name"
           placeholder="Enter the name of your hotel"
           type="text"
+          :error="errors.title"
         />
 
         <FormTextarea
@@ -210,6 +211,7 @@ const handleSubmit = async () => {
           placeholder="Describe what makes your hotel special..."
           :rows="4"
           help-text="Highlight unique features, location benefits, and special amenities."
+          :error="errors.description"
         />
       </div>
     </div>
@@ -226,6 +228,7 @@ const handleSubmit = async () => {
           label="Address"
           placeholder="Full hotel address"
           type="text"
+          :error="errors.address"
         />
 
         <!-- Add Location Coordinates -->
@@ -235,6 +238,7 @@ const handleSubmit = async () => {
           label="Latitude"
           placeholder="e.g., 40.7128"
           type="number"
+          :error="errors.latitude"
         />
 
         <FormInput
@@ -243,6 +247,7 @@ const handleSubmit = async () => {
           label="Longitude"
           placeholder="e.g., -74.0060"
           type="number"
+          :error="errors.longitude"
         />
 
         <FormInput
@@ -251,6 +256,7 @@ const handleSubmit = async () => {
           label="Website"
           placeholder="www.example.com"
           type="url"
+          :error="errors.website"
         />
 
         <FormInput
@@ -259,6 +265,7 @@ const handleSubmit = async () => {
           label="Phone"
           placeholder="+1 (555) 000-0000"
           type="tel"
+          :error="errors.phone"
         />
 
         <FormInput
@@ -267,6 +274,7 @@ const handleSubmit = async () => {
           label="Email"
           placeholder="reservations@hotel.com"
           type="email"
+          :error="errors.email"
         />
       </div>
     </div>
@@ -287,6 +295,7 @@ const handleSubmit = async () => {
           min="0"
           max="5"
           step="0.1"
+          :error="errors.rating"
         />
 
         <FormInput
@@ -295,6 +304,7 @@ const handleSubmit = async () => {
           label="Check-in Time"
           placeholder="e.g., 3:00 PM"
           type="text"
+          :error="errors.checkInTime"
         />
 
         <FormInput
@@ -303,6 +313,7 @@ const handleSubmit = async () => {
           label="Price Range"
           placeholder="e.g., $100 - $300 per night"
           type="text"
+          :error="errors.priceRanges"
         />
 
         <FormInput
@@ -311,6 +322,7 @@ const handleSubmit = async () => {
           label="Total Rooms"
           placeholder="Number of rooms"
           type="number"
+          :error="errors.totalRooms"
         />
 
         <FormInput
@@ -319,6 +331,7 @@ const handleSubmit = async () => {
           label="Room Types"
           placeholder="e.g., Standard, Deluxe, Suite"
           type="text"
+          :error="errors.roomTypes"
         />
 
         <!-- Add Active Status -->
@@ -342,11 +355,15 @@ const handleSubmit = async () => {
                 :id="amenity"
                 v-model="formState.amenities"
                 :value="amenity"
-                class="rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                :class="[
+                  'rounded border-gray-300 text-blue-600 focus:ring-blue-600',
+                  errors.amenities ? 'border-red-500' : ''
+                ]"
               />
               <label :for="amenity" class="text-sm text-gray-900">{{ amenity }}</label>
             </div>
           </div>
+          <p v-if="errors.amenities" class="mt-2 text-sm text-red-600">{{ errors.amenities }}</p>
         </div>
       </div>
     </div>
@@ -363,19 +380,36 @@ const handleSubmit = async () => {
           label="Featured Image URL"
           placeholder="https://example.com/image.jpg"
           type="url"
+          :error="errors.featuredImage"
         />
       </div>
     </div>
 
     <!-- Submit Button -->
-    <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button 
-        type="submit" 
-        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        :disabled="isLoading"
-      >
-        {{ isLoading ? 'Creating Hotel...' : 'Create Hotel Listing' }}
-      </button>
+    <div class="mt-6 flex flex-col gap-4">
+      <!-- Error Summary -->
+      <div v-if="Object.values(errors).some(error => error !== '')" 
+           class="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <h3 class="text-red-800 font-medium mb-2">Please correct the following errors:</h3>
+        <ul class="list-disc list-inside">
+          <li v-for="(error, field) in errors" 
+              :key="field" 
+              v-if="error"
+              class="text-red-600 text-sm">
+            {{ error }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex items-center justify-end gap-x-6">
+        <button 
+          type="submit" 
+          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          :disabled="isLoading"
+        >
+          {{ isLoading ? 'Creating Hotel...' : 'Create Hotel Listing' }}
+        </button>
+      </div>
     </div>
   </form>
 </template>
