@@ -105,6 +105,11 @@ const isLoading = ref(false)
 const handleSubmit = async () => {
   if (!validateForm()) {
     console.log('Form validation failed', errors.value)
+    // Scroll to top of the form smoothly
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
     return
   }
 

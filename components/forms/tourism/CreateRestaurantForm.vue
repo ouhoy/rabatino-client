@@ -15,7 +15,9 @@ const restaurantSchema = z.object({
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   website: z.string().url().optional(),
-  phone: z.string(),
+  phone: z.string()
+    .min(1, 'Phone number is required')
+    .regex(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4}$/, 'Invalid phone number format'),
   email: z.string().email(),
   featuredImage: z.string().url(),
   rating: z.number().min(0).max(5),
@@ -95,6 +97,11 @@ const validateForm = () => {
 const handleSubmit = async () => {
   if (!validateForm()) {
     console.log('Form validation failed', errors.value)
+    // Scroll to top of the form smoothly
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
     return
   }
 
@@ -185,6 +192,7 @@ const handleSubmit = async () => {
           label="Restaurant Name"
           placeholder="Enter the name of your restaurant"
           type="text"
+          :error="errors.title"
         />
 
         <FormTextarea
@@ -194,6 +202,7 @@ const handleSubmit = async () => {
           placeholder="Describe your restaurant's atmosphere and cuisine..."
           :rows="4"
           help-text="Highlight your restaurant's unique offerings, specialties, and dining experience."
+          :error="errors.description"
         />
       </div>
     </div>
@@ -210,6 +219,7 @@ const handleSubmit = async () => {
           label="Address"
           placeholder="Full restaurant address"
           type="text"
+          :error="errors.address"
         />
 
         <FormInput
@@ -218,6 +228,7 @@ const handleSubmit = async () => {
           label="Website"
           placeholder="www.example.com"
           type="url"
+          :error="errors.website"
         />
 
         <FormInput
@@ -226,6 +237,7 @@ const handleSubmit = async () => {
           label="Phone"
           placeholder="+1 (555) 000-0000"
           type="tel"
+          :error="errors.phone"
         />
 
         <FormInput
@@ -234,6 +246,7 @@ const handleSubmit = async () => {
           label="Email"
           placeholder="contact@restaurant.com"
           type="email"
+          :error="errors.email"
         />
 
         <!-- Add Location Coordinates -->
@@ -243,6 +256,7 @@ const handleSubmit = async () => {
           label="Latitude"
           placeholder="e.g., 40.7128"
           type="number"
+          :error="errors.latitude"
         />
 
         <FormInput
@@ -251,6 +265,7 @@ const handleSubmit = async () => {
           label="Longitude"
           placeholder="e.g., -74.0060"
           type="number"
+          :error="errors.longitude"
         />
       </div>
     </div>
@@ -271,6 +286,7 @@ const handleSubmit = async () => {
           min="0"
           max="5"
           step="0.1"
+          :error="errors.rating"
         />
 
         <!-- Active Status -->
@@ -359,6 +375,7 @@ const handleSubmit = async () => {
           label="Featured Image URL"
           placeholder="https://example.com/image.jpg"
           type="url"
+          :error="errors.featuredImage"
         />
       </div>
     </div>
