@@ -1,7 +1,47 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { z } from 'zod'
 import type { Restaurant } from '~/types/tourism'
 import { TourismType } from '~/types/tourism'
+
+const config = useRuntimeConfig()
+const isLoading = ref(false)
+
+// Add Zod schema for validation
+const restaurantSchema = z.object({
+  title: z.string().min(3, 'Restaurant name must be at least 3 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  address: z.string().min(5, 'Address is required'),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  website: z.string().url().optional(),
+  phone: z.string(),
+  email: z.string().email(),
+  featuredImage: z.string().url(),
+  rating: z.number().min(0).max(5),
+  cuisine: z.string().min(2, 'Cuisine type is required'),
+  priceRanges: z.string().min(1, 'Price range is required'),
+  menus: z.string().min(1, 'Menus information is required'),
+  openingHours: z.string().min(1, 'Opening hours are required')
+})
+
+// Add error state
+const errors = ref({
+  title: '',
+  description: '',
+  address: '',
+  latitude: '',
+  longitude: '',
+  website: '',
+  phone: '',
+  email: '',
+  featuredImage: '',
+  rating: '',
+  cuisine: '',
+  priceRanges: '',
+  menus: '',
+  openingHours: ''
+})
 
 const formState = ref({
   // Post interface fields
@@ -26,13 +66,108 @@ const formState = ref({
   cuisine: '',
   priceRanges: '',
   menus: '',
-  openiningHours: '',
-  takout: false,
+  openingHours: '', // Fix the typo here (was openiningHours)
+  takeout: false,
   delivery: false
 })
 
-const handleSubmit = () => {
-  console.log('Submitting Restaurant:', formState.value)
+const validateForm = () => {
+  Object.keys(errors.value).forEach(key => {
+    errors.value[key as keyof typeof errors.value] = ''
+  })
+
+  try {
+    restaurantSchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    console.log('Validation errors:', errors.value) // Add this for debugging
+    return false
+  }
+}
+
+const handleSubmit = async () => {
+  if (!validateForm()) {
+    console.log('Form validation failed', errors.value)
+    return
+  }
+
+  isLoading.value = true
+  try {
+    // Restructure the data to match API requirements
+    const restaurantData = {
+      title: formState.value.title,
+      userId: 1, // Hardcoded for now, should come from auth context
+      typeId: 3, // Tourism type for restaurants
+      description: formState.value.description,
+      address: formState.value.address,
+      latitude: formState.value.latitude,
+      longitude: formState.value.longitude,
+      website: formState.value.website || null,
+      phone: formState.value.phone,
+      email: formState.value.email,
+      featuredImage: formState.value.featuredImage,
+
+      isActive: formState.value.isActive,
+      rating: formState.value.rating,
+      tourismType: 'RESTAURANT',
+
+      cuisine: formState.value.cuisine,
+      priceRanges: formState.value.priceRanges,
+      menus: formState.value.menus,
+      openingHours: formState.value.openingHours, // Fix the property name here too
+      takeout: formState.value.takout,
+      delivery: formState.value.delivery
+    }
+
+    const response = await fetch(`${config.public.apiBaseUrl}/tourism/restaurants`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(restaurantData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create restaurant')
+    }
+
+    const data = await response.json()
+    console.log('Restaurant created successfully:', data)
+    // Reset form
+    formState.value = {
+      title: '',
+      description: '',
+      createdAt: new Date(),
+      userId: '1',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      website: '',
+      phone: '',
+      email: '',
+      featuredImage: '',
+      isActive: true,
+      rating: 0,
+      type: TourismType.RESTAURANT,
+      cuisine: '',
+      priceRanges: '',
+      menus: '',
+      openingHours: '',
+      takout: false,
+      delivery: false
+    }
+  } catch (error) {
+    console.error('Error creating restaurant:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -156,6 +291,7 @@ const handleSubmit = () => {
           label="Cuisine Type"
           placeholder="e.g., Italian, Japanese, Mediterranean"
           type="text"
+          :error="errors.cuisine"
         />
 
         <FormInput
@@ -164,14 +300,16 @@ const handleSubmit = () => {
           label="Price Range"
           placeholder="e.g., $20 - $50 per person"
           type="text"
+          :error="errors.priceRanges"
         />
 
         <FormInput
           class="sm:col-span-3"
-          v-model="formState.openiningHours"
+          v-model="formState.openingHours"
           label="Opening Hours"
           placeholder="e.g., 11:00 AM - 10:00 PM"
           type="text"
+          :error="errors.openingHours"
         />
 
         <FormInput
@@ -180,6 +318,7 @@ const handleSubmit = () => {
           label="Available Menus"
           placeholder="e.g., Lunch, Dinner, Weekend Brunch"
           type="text"
+          :error="errors.menus"
         />
 
         <div class="col-span-full">
@@ -226,8 +365,12 @@ const handleSubmit = () => {
 
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Create Restaurant Listing
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Creating Restaurant...' : 'Create Restaurant Listing' }}
       </button>
     </div>
   </form>

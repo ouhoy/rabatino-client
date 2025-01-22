@@ -117,7 +117,7 @@ const handleSubmit = async () => {
     const hotelData = {
       title: formState.value.title,
       userId: 1, // Hardcoded for now, should come from auth context
-      typeId: 3, // Tourism type for hotels
+      typeId: 4, // Tourism type for hotels
       description: formState.value.description,
       address: formState.value.address,
       latitude: formState.value.latitude,
