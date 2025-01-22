@@ -103,11 +103,24 @@ function handleDeleteClick(id: number) {
   dangerDialogOpen.value = true
 }
 
+const getEndpointByType = (typeId: number, postId: number) => {
+  switch (typeId) {
+    case 3: // Business type
+      return `${config.public.apiBaseUrl}/business/${postId}`
+    default:
+      return `${config.public.apiBaseUrl}/posts/${postId}`
+  }
+}
+
 async function handleDelete() {
   if (!selectedPostId.value) return
 
   try {
-    const response = await fetch(`${config.public.apiBaseUrl}/posts/${selectedPostId.value}`, {
+    const postToDelete = posts.value.find(post => post.id === selectedPostId.value)
+    if (!postToDelete) return
+
+    const endpoint = getEndpointByType(postToDelete.typeId, selectedPostId.value)
+    const response = await fetch(endpoint, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
@@ -118,9 +131,15 @@ async function handleDelete() {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    posts.value = posts.value.filter(post => post.id !== selectedPostId.value)
-    filteredPosts.value = filteredPosts.value.filter(post => post.id !== selectedPostId.value)
-    dangerDialogOpen.value = false
+    const result = await response.json()
+    if (result === true) {
+      // Remove post from both lists
+      posts.value = posts.value.filter(post => post.id !== selectedPostId.value)
+      filteredPosts.value = filteredPosts.value.filter(post => post.id !== selectedPostId.value)
+      dangerDialogOpen.value = false
+    } else {
+      throw new Error('Delete operation failed')
+    }
   } catch (err) {
     console.error('Error deleting post:', err)
     error.value = 'Failed to delete post. Please try again.'
