@@ -1,7 +1,49 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { z } from 'zod'
 import type { Hotel } from '~/types/tourism'
 import { TourismType } from '~/types/tourism'
+
+const config = useRuntimeConfig()
+const isLoading = ref(false)
+
+// Add Zod schema for validation
+const hotelSchema = z.object({
+  title: z.string().min(3, 'Hotel name must be at least 3 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  address: z.string().min(5, 'Address is required'),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  website: z.string().url().optional(),
+  phone: z.string().optional(),
+  email: z.string().email(),
+  featuredImage: z.string().url(),
+  rating: z.number().min(0).max(5),
+  amenities: z.array(z.string()).min(1, 'At least one amenity is required'),
+  priceRanges: z.string().min(1, 'Price range is required'),
+  totalRooms: z.number().min(1, 'Must have at least one room'),
+  roomTypes: z.string().min(1, 'Room types are required'),
+  checkInTime: z.string().min(1, 'Check-in time is required')
+})
+
+// Add error state
+const errors = ref({
+  title: '',
+  description: '',
+  address: '',
+  latitude: '',
+  longitude: '',
+  website: '',
+  phone: '',
+  email: '',
+  featuredImage: '',
+  rating: '',
+  amenities: '',
+  priceRanges: '',
+  totalRooms: '',
+  roomTypes: '',
+  checkInTime: ''
+})
 
 const formState = ref({
   // Post interface fields
@@ -43,8 +85,100 @@ const commonAmenities = [
   'Business Center'
 ]
 
-const handleSubmit = () => {
-  console.log('Submitting Hotel:', formState.value)
+const validateForm = () => {
+  Object.keys(errors.value).forEach(key => {
+    errors.value[key as keyof typeof errors.value] = ''
+  })
+
+  try {
+    hotelSchema.parse(formState.value)
+    return true
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      error.errors.forEach((err) => {
+        if (err.path) {
+          errors.value[err.path[0] as keyof typeof errors.value] = err.message
+        }
+      })
+    }
+    return false
+  }
+}
+
+const handleSubmit = async () => {
+  if (!validateForm()) {
+    console.log('Form validation failed', errors.value)
+    return
+  }
+
+  isLoading.value = true
+  try {
+    // Restructure the data to match API requirements
+    const hotelData = {
+      title: formState.value.title,
+      userId: 1, // Hardcoded for now, should come from auth context
+      typeId: 3, // Tourism type for hotels
+      description: formState.value.description,
+      address: formState.value.address,
+      latitude: formState.value.latitude,
+      longitude: formState.value.longitude,
+      website: formState.value.website || null,
+      phone: formState.value.phone || null,
+      email: formState.value.email || null,
+      featuredImage: formState.value.featuredImage,
+
+      isActive: formState.value.isActive,
+      rating: formState.value.rating,
+      tourismType: 'HOTEL',
+
+      amenities: formState.value.amenities,
+      priceRanges: formState.value.priceRanges,
+      totalRooms: Number(formState.value.totalRooms),
+      roomTypes: formState.value.roomTypes,
+      checkInTime: formState.value.checkInTime
+    }
+
+    const response = await fetch(`${config.public.apiBaseUrl}/tourism/hotels`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(hotelData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create hotel')
+    }
+
+    const data = await response.json()
+    console.log('Hotel created successfully:', data)
+    // Reset form
+    formState.value = {
+      title: '',
+      description: '',
+      createdAt: new Date(),
+      userId: '1',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      website: '',
+      phone: '',
+      email: '',
+      featuredImage: '',
+      isActive: true,
+      rating: 0,
+      type: TourismType.HOTEL,
+      amenities: [],
+      priceRanges: '',
+      totalRooms: 0,
+      roomTypes: '',
+      checkInTime: ''
+    }
+  } catch (error) {
+    console.error('Error creating hotel:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -230,8 +364,12 @@ const handleSubmit = () => {
 
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
-      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        Create Hotel Listing
+      <button 
+        type="submit" 
+        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        :disabled="isLoading"
+      >
+        {{ isLoading ? 'Creating Hotel...' : 'Create Hotel Listing' }}
       </button>
     </div>
   </form>
