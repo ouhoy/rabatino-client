@@ -17,5 +17,8 @@
     "vue": "latest",
     "vue-router": "latest",
     "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "nuxt-headlessui": "^1.2.0"
   }
 }
