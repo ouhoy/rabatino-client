@@ -19,8 +19,8 @@
       <nuxt-link to="/dashboard" class="text-neutral-900 text-base font-medium">Dashboard</nuxt-link>
     </div>
     <div class="flex items-center justify-center gap-2">
-      <nuxt-link to="/" class="text-neutral-900 p-3 px-6 text-base font-medium" >Login</nuxt-link>
-      <nuxt-link to="/" class="bg-neutral-900 text-white p-3 px-6 text-base font-medium rounded-full" >Create Account</nuxt-link>
+      <nuxt-link to="/login" class="text-neutral-900 p-3 px-6 text-base font-medium" >Login</nuxt-link>
+      <nuxt-link to="/register" class="bg-neutral-900 text-white p-3 px-6 text-base font-medium rounded-full" >Create Account</nuxt-link>
     </div>
   </div>
 </nav>
