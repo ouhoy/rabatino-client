@@ -14,10 +14,10 @@ import Logo from "./logo.vue";
 
       <div class="flex items-center justify-center gap-6">
         <nuxt-link to="/" class="text-neutral-700 text-base font-normal">About</nuxt-link>
-        <nuxt-link to="/" class="text-neutral-700 text-base font-normal">Education</nuxt-link>
-        <nuxt-link to="/" class="text-neutral-700 text-base font-normal">Tourism</nuxt-link>
-        <nuxt-link to="/" class="text-neutral-700 text-base font-normal">Business</nuxt-link>
-        <nuxt-link to="/" class="text-neutral-700 text-base font-normal">Career</nuxt-link>
+        <nuxt-link to="/education" class="text-neutral-700 text-base font-normal">Education</nuxt-link>
+        <nuxt-link to="/tourism" class="text-neutral-700 text-base font-normal">Tourism</nuxt-link>
+        <nuxt-link to="/business" class="text-neutral-700 text-base font-normal">Business</nuxt-link>
+        <nuxt-link to="/career" class="text-neutral-700 text-base font-normal">Career</nuxt-link>
       </div>
 
       <p class="text-neutral-700 text-base font-normal">© 2025 Rabatino. All rights reserved.</p>
