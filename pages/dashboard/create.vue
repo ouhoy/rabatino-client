@@ -3,6 +3,14 @@ import { ref } from 'vue'
 import { TourismType } from '~/types/tourism'
 import { InstitutionType } from '~/types/education'
 import { JobType, WorkLocation } from '~/types/jobs'
+definePageMeta({
+  layout: 'dashboard'
+})
+
+definePageMeta({
+  middleware: ['auth'],
+  requiresAuth: true
+})
 
 // Main categories
 const categories = [

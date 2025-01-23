@@ -2,7 +2,12 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@nuxtjs/google-fonts', '@nuxtjs/tailwindcss'],
+  modules: [
+    '@nuxtjs/google-fonts',
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/leaflet',
+    '@pinia/nuxt'
+  ],
   runtimeConfig: {
 
     // Public keys that are exposed to the client

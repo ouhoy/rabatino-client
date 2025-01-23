@@ -2,6 +2,14 @@
 import { ref, onMounted } from 'vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
+definePageMeta({
+  layout: 'dashboard',
+  middleware: ['auth'],
+  auth: {
+    required: true,
+    unauthenticatedOnly: false
+  }
+})
 
 interface PaginatedResponse {
   meta: {
@@ -66,7 +74,7 @@ async function fetchPosts(page = 1) {
     isLoading.value = true
     error.value = null
     
-    const response = await fetch(`${config.public.apiBaseUrl}/posts/?page=${page}`)
+    const response = await fetch(`${config.public.apiBaseUrl}/posts?limit=150`)
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
@@ -156,6 +164,70 @@ async function handlePageChange(page: number) {
   if (page < 1 || (pagination.value && page > pagination.value.lastPage)) return
   await fetchPosts(page)
 }
+
+enum InstitutionType {
+  UNIVERSITY = 'UNIVERSITY',
+  COLLEGE = 'COLLEGE',
+  LIBRARY = 'LIBRARY',
+  COACHING_CENTER = 'COACHING_CENTER',
+  STUDY_CENTER = 'STUDY_CENTER'
+}
+
+enum TourismType {
+  HOTEL = 'HOTEL',
+  RESTAURANT = 'RESTAURANT',
+  ATTRACTION = 'ATTRACTION',
+  THEATER = 'THEATER',
+  BANK = 'BANK'
+}
+
+// Add this function to generate the correct edit URL
+function getEditUrl(post: Post): string {
+  switch (post.typeId) {
+    case 1: // Jobs
+      return `/dashboard/edit/jobs/${post.id}`
+    case 2: // Education
+      if ('institutionType' in post) {
+        const type = (post as any).institutionType.toLowerCase().replace('_', '-')
+        return `/dashboard/edit/education/${type}/${post.id}`
+      }
+      return `/dashboard/edit/${post.id}`
+    case 3: // Business
+      return `/dashboard/edit/business/${post.id}`
+    case 4: // Tourism
+      if ('tourismType' in post) {
+        const type = (post as any).tourismType.toLowerCase()
+        return `/dashboard/edit/tourism/${type}/${post.id}`
+      }
+      return `/dashboard/edit/${post.id}`
+    default:
+      return `/dashboard/edit/${post.id}`
+  }
+}
+
+// Add this function to generate the correct view URL
+function getViewUrl(post: Post): string {
+  switch (post.typeId) {
+    case 1: // Jobs
+      return `/career/${post.id}`
+    case 2: // Education
+      if ('institutionType' in post) {
+        const type = (post as any).institutionType.toLowerCase().replace('_', '-')
+        return `/education/${type}/${post.id}`
+      }
+      return `/education/${post.id}`
+    case 3: // Business
+      return `/business/${post.id}`
+    case 4: // Tourism
+      if ('tourismType' in post) {
+        const type = (post as any).tourismType.toLowerCase()
+        return `/tourism/${type}/${post.id}`
+      }
+      return `/tourism/${post.id}`
+    default:
+      return `/${post.id}`
+  }
+}
 </script>
 
 <template>
@@ -236,7 +308,14 @@ async function handlePageChange(page: number) {
 
                     <MenuItems class="absolute right-0 z-10 mt-2 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <MenuItem v-slot="{ active }">
-                        <NuxtLink :to="`/dashboard/edit/${post.id}`" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
+                        <NuxtLink :to="getViewUrl(post)" 
+                                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
+                          View
+                        </NuxtLink>
+                      </MenuItem>
+                      <MenuItem v-slot="{ active }">
+                        <NuxtLink :to="getEditUrl(post)" 
+                                  :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">
                           Edit
                         </NuxtLink>
                       </MenuItem>

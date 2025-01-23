@@ -1,12 +1,12 @@
 <script setup lang="ts">
-
-
-defineProps<{
+const props = defineProps<{
   title: string,
   imgUrl: string,
 }>()
 
-
+const truncatedTitle = computed(() => {
+  return props.title.length > 32 ? props.title.slice(0, 32) + '...' : props.title
+})
 </script>
 
 <template>
@@ -33,7 +33,7 @@ defineProps<{
 
     <!-- CARD DESCRIPTION -->
     <div class="w-full flex items-center justify-between gap-2 min-w-80">
-      <h2 class="truncate  font-medium text-base text-neutral-900 first-letter:uppercase">{{ title }}</h2>
+      <h2 class="truncate  font-medium text-base text-neutral-900 first-letter:uppercase">{{ truncatedTitle }}</h2>
 <!--      <p v-if="price" class="text-normal text-neutral-900 whitespace-nowrap"><span class="font-medium">{{ Math.floor(price) }}MAD</span> night</p>-->
     </div>
 

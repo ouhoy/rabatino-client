@@ -15,7 +15,8 @@
       <nuxt-link to="/education" class="text-neutral-900 text-base font-medium">Education</nuxt-link>
       <nuxt-link to="/tourism" class="text-neutral-900 text-base font-medium">Tourism</nuxt-link>
       <nuxt-link to="/business" class="text-neutral-900 text-base font-medium">Business</nuxt-link>
-      <nuxt-link to="/" class="text-neutral-900 text-base font-medium">Career</nuxt-link>
+      <nuxt-link to="/career" class="text-neutral-900 text-base font-medium">Career</nuxt-link>
+      <nuxt-link to="/dashboard" class="text-neutral-900 text-base font-medium">Dashboard</nuxt-link>
     </div>
     <div class="flex items-center justify-center gap-2">
       <nuxt-link to="/" class="text-neutral-900 p-3 px-6 text-base font-medium" >Login</nuxt-link>

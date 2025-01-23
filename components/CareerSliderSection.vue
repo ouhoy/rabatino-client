@@ -2,30 +2,21 @@
 import Card from "./card.vue";
 import {ref, onMounted, onUnmounted} from 'vue';
 import {ChevronRightIcon, ChevronLeftIcon} from '@heroicons/vue/16/solid';
+import JobCard from "./JobCard.vue";
 
 interface postCard {
   id: number,
   title: string,
-  imgUrl: string, // This matches the transformed featuredImg from business posts
-  institutionType?: string // Add optional institutionType for education posts
+  logo: string,
+  company: string,
 }
 
-const props = defineProps<{
+defineProps<{
   title: string,
   description: string,
   posts: postCard[],
-  getViewUrl?: (post: postCard) => string, // Add optional custom URL generator
   viewAllRoute?: string // Add this prop
 }>()
-
-// Generate view URL based on section title or custom function
-function getViewUrl(post: postCard): string {
-  if (props.getViewUrl) {
-    return props.getViewUrl(post)
-  }
-  const baseRoute = props.title.toLowerCase()
-  return `/${baseRoute}/${post.id}`
-}
 
 const scrollContainer = ref<HTMLElement | null>(null);
 const showLeftGradient = ref(false);
@@ -103,23 +94,18 @@ onUnmounted(() => {
     </div>
 
     <div ref="scrollContainer"
-         class="w-full flex items-center justify-start gap-8 overflow-x-scroll no-scrollbar">
-      
+         class="w-full flex items-center justify-start gap-8 overflow-x-scroll no-scrollbar ">
          <SkeletonCard  v-for="item in Array.from({length: 7})" v-if="!posts.length"/>
 
-      
-         <nuxt-link 
+      <nuxt-link 
         v-for="post in posts" 
         :key="post.id"
-        :to="getViewUrl(post)"
-        class="flex-shrink-0"
+        :to="`/career/${post.id}`"
       >
-
-
-
-        <card 
-          :title="post.title" 
-          :imgUrl="post.imgUrl"
+        <JobCard
+          :title="post.title"
+          :logo="post.logo"
+          :company="post.company"
         />
       </nuxt-link>
     </div>
