@@ -28,8 +28,27 @@ const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required')
 })
+const config = useRuntimeConfig()
+async function login(email: string, password: string) {
+        try {
+            const response = await fetch(`${config.public.apiBaseUrl}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({email, password}),
+                credentials: 'include',
+            })
+            // ... handle response
+        } catch (error) {
+            console.error('Login error:', error)
+        }
+    }
 
 async function handleLogin() {
+
+
+ 
   try {
     isPending.value = true
     error.value = '' // Clear any previous errors
@@ -39,13 +58,8 @@ async function handleLogin() {
       email: email.value,
       password: password.value
     })
-
-    await authStore.login(validatedData.email, validatedData.password)
-    if (authStore.isAuthenticated) {
-      await router.push('/dashboard')
-    } else {
-      error.value = 'Login failed. Please check your credentials.'
-    }
+        await login(validatedData.email, validatedData.password)
+    
   } catch (e) {
     if (e instanceof z.ZodError) {
       error.value = e.errors[0].message

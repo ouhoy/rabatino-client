@@ -4,11 +4,8 @@ import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid'
 definePageMeta({
   layout: 'dashboard',
-  middleware: ['auth'],
-  auth: {
-    required: true,
-    unauthenticatedOnly: false
-  }
+
+
 })
 
 interface PaginatedResponse {

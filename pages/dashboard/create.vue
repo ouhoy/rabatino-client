@@ -7,11 +7,6 @@ definePageMeta({
   layout: 'dashboard'
 })
 
-definePageMeta({
-  middleware: ['auth'],
-  requiresAuth: true
-})
-
 // Main categories
 const categories = [
   { id: 'tourism', name: 'Tourism', description: 'Hotels, Restaurants, and Attractions' },

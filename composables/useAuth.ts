@@ -14,17 +14,9 @@ console.log('config.public.apiBaseUrl', config.public.apiBaseUrl)
                 body: JSON.stringify({email, password}),
                 credentials: 'include',
             })
-
-            if (!response.ok) {
-                throw new Error('Login failed')
-            }
-
-            const data = await response.json()
-            user.value = data.user
-            return true
+            // ... handle response
         } catch (error) {
             console.error('Login error:', error)
-            return false
         }
     }
 
