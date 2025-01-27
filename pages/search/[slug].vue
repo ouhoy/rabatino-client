@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import JobCard from '~/components/JobCard.vue'
-import Card from '~/components/Card.vue'
+
 
  enum PostType {
   JOB = 1,
