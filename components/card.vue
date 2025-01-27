@@ -18,9 +18,6 @@ const truncatedTitle = computed(() => {
       <!-- CARD TOP BUTTONS -->
       <div class="absolute p-2 w-full flex items-center justify-between">
         <div></div>
-<!--        <button class="bg-neutral-950 bg-opacity-45 p-1 rounded-full z-10 transform transition-transform duration-150 hover:scale-105">-->
-<!--          <HeartIcon class=" cursor-pointer h-6 w-6 text-white"/>-->
-<!--        </button>-->
       </div>
 
       <!-- IMG CONTAINER -->
