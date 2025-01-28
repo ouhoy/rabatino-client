@@ -243,7 +243,7 @@ const formattedTourismPosts = computed(() => {
             v-model="searchInputValue"
             @keyup.enter="handleSearch"
             type="text"
-            class="bg-neutral-50 p-2 w-full max-w-[95%] mx-auto block outline-none border-0 text-neutral-900 placeholder:text-neutral-500 placeholder:text-sm"
+            class="bg-neutral-50 p-2 w-full max-w-[95%] mx-auto block  outline-none focus:outline-none border-0 text-neutral-900 placeholder:text-neutral-500 placeholder:text-sm"
             placeholder="What are you looking for?">
 
         <button
