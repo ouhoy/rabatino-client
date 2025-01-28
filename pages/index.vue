@@ -230,8 +230,8 @@ const formattedTourismPosts = computed(() => {
     <!-- HERO_SECTION -->
     <header class="w-full flex flex-col items-center justify-center gap-4 pb-44 pt-28">
       <div class="flex text-center flex-col items-center justify-center gap-4 max-w-xl mx-auto">
-        <h1 class="text-7xl text-neutral-900 leading-[80px] font-medium">Discover Rabat<br/>the City of Light</h1>
-        <p class="text-lg text-neutral-700">Explore the perfect blend of timeless heritage and cutting-edge innovation
+        <h1 class="text-5xl lg:text-7xl lg:leading-[80px] text-neutral-900  font-medium">Discover Rabat<br/>the City of Light</h1>
+        <p class="text-base md:text-lg text-neutral-700">Explore the perfect blend of timeless heritage and cutting-edge innovation
           in Morocco’s capital.</p>
       </div>
       <div

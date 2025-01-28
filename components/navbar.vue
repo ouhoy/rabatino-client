@@ -41,7 +41,7 @@ const toggleMenu = () => {
       <!-- Mobile Navigation -->
       <div 
         :class="[
-          'fixed inset-0 bg-white z-50 transition-transform duration-300 ease-in-out lg:hidden',
+          'fixed inset-0 bg-white z-[150] transition-transform duration-300 ease-in-out lg:hidden',
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         ]"
       >
@@ -71,7 +71,5 @@ const toggleMenu = () => {
 </template>
 
 <style scoped>
-.router-link-active {
-  font-weight: bold;
-}
+
 </style>
