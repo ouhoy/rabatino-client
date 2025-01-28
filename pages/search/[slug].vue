@@ -100,6 +100,8 @@ function handleCategoryClick(categoryId: number) {
   
   if (categoryId === 0) {
     filteredPosts.value = posts.value;
+
+    console.log("Filtered posts: ",filteredPosts.value)
   } else {
     const category = categories[categoryId];
     filteredPosts.value = posts.value.filter(
@@ -199,7 +201,7 @@ onMounted(() => {
           v-if="post.typeId === PostType.JOB"
           :title="post.title"
           :company="post.company"
-          :logo="post.logo"
+          :logo="post.featuredImage"
         />
         <Card
           v-else
